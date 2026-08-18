@@ -1,0 +1,26 @@
+[project]
+name = "softdesk"
+version = "0.1.0"
+description = "RESTful API for managing technical support projects, issues, contributors, and comments."
+authors = [
+    {name = "Armand310888",email = "armand.delaporte@gmail.com"}
+]
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "django (>=6.1,<7.0)",
+    "djangorestframework (>=3.18.0,<4.0.0)",
+    "python-dotenv (>=1.2.3,<2.0.0)"
+]
+
+[tool.poetry]
+package-mode = false
+
+[dependency-groups]
+dev = [
+    "flake8 (>=7.3.0,<8.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
