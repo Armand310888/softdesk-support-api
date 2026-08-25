@@ -14,6 +14,6 @@ class User(AbstractUser):
 
     email = models.EmailField(unique=True)
 
-    is_anonymized = models.BooleanField(default=True)
+    is_anonymized = models.BooleanField(default=False)
 
     REQUIRED_FIELDS = ["email", "age"]
