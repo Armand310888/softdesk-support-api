@@ -307,6 +307,41 @@ l'implémentation :
   application ou séparer davantage Project, Issue et Comment dans plusieurs
   applications.
 
+### **[2026-08-25] Décision : Ajout des contributeurs par le nom d'utilisateur**
+- Raison : Permettre à l'auteur d'un projet de gérer ses contributeurs sans
+  exposer une liste générale d'utilisateurs ni utiliser leurs données
+  personnelles, comme leur adresse e-mail.
+- Stratégie retenue :
+  - seul l'auteur du projet peut ajouter un contributeur ;
+  - l'auteur saisit le `username` exact de l'utilisateur ciblé ;
+  - l'utilisateur doit exister et son compte doit être actif et non anonymisé ;
+  - une association Contributor est créée entre cet utilisateur et le projet ;
+  - la contrainte d'unicité sur `(user, project)` empêche les ajouts en double.
+- Sécurité :
+  - aucun annuaire global des utilisateurs n'est exposé ;
+  - les erreurs ne doivent pas révéler inutilement l'existence d'un compte à
+    un utilisateur non autorisé ;
+  - l'ajout reste soumis aux permissions du projet.
+- Impact : L'API d'ajout d'un contributeur reçoit un `username` plutôt qu'un
+  identifiant utilisateur ou une adresse e-mail. Cette valeur sert uniquement
+  à rechercher le compte et n'est pas stockée dans Contributor.
+- Alternatives considérées :
+  - proposer une barre de recherche permettant de saisir tout ou partie d'un
+    `username` et d'afficher les comptes correspondants ;
+  - afficher la liste des utilisateurs afin que l'auteur du projet sélectionne
+    directement ceux qu'il souhaite ajouter ;
+  - compléter l'une de ces méthodes par un système d'invitation permettant à
+    l'utilisateur ciblé d'accepter ou de refuser de devenir contributeur.
+- Raisons du rejet :
+  - la recherche partielle et la liste globale exposeraient davantage
+    l'existence et les noms des comptes utilisateurs ;
+  - elles nécessiteraient un endpoint supplémentaire, des permissions et
+    éventuellement de la pagination ;
+  - le système d'invitation ajouterait des états et un workflow qui ne sont pas
+    demandés par le cahier des charges ;
+  - la saisie exacte du `username` constitue la solution la plus simple et la
+    plus limitée au besoin actuel.
+
 ---
 
-*Dernière mise à jour : 2026-08-24*
+*Dernière mise à jour : 2026-08-25*
