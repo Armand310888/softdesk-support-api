@@ -4,7 +4,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-    age = models.SmallIntegerField(validators=[MinValueValidator(15)])
+    age = models.SmallIntegerField(validators=[MinValueValidator(15)], null=True)
 
     can_be_contacted = models.BooleanField(default=False)
 
