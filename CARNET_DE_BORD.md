@@ -166,7 +166,7 @@ l'implémentation :
 ## ✅ PROGRESSION DU PROJET
 
 ### Étape 1 : Démarrer le projet et identifier le besoin
-- **Statut** : ⏳ En cours
+- **Statut** : ✅ Terminée
 - **Décisions prises** :
   - ✅ Gestionnaire de dépendances : Poetry (standard moderne Django)
   - ✅ Version Python : 3.12.3
@@ -184,14 +184,32 @@ l'implémentation :
   classrooms, une migration a été effectuée vers Codex.
 
 ### Étape 2 : Définir les utilisateurs
-- **Statut** : ❌ Pas commencé
-- **Décisions prises** : (À remplir)
-- **Blocages/Notes** : (À remplir)
+- **Statut** : ✅ Terminée
+- **Décisions prises** :
+  - Modèle utilisateur personnalisé basé sur `AbstractUser`
+  - Inscription autorisée à partir de 15 ans inclus
+  - Consentements `can_be_contacted` et `can_data_be_shared` enregistrés
+    séparément
+  - Validation du mot de passe avec les validateurs Django et stockage sous
+    forme hachée
+  - Consultation et modification d'un profil limitées à son propriétaire
+  - Suppression du profil réalisée par anonymisation et désactivation du compte
+- **Blocages/Notes** :
+  - Parcours de l'API utilisateur validés manuellement avec Postman
 
 ### Étape 3 : Définir les projets et contributeurs
-- **Statut** : ❌ Pas commencé
-- **Décisions prises** : (À remplir)
-- **Blocages/Notes** : (À remplir)
+- **Statut** : ⏳ En cours
+- **Décisions prises** :
+  - Types de projet représentés avec `models.TextChoices`
+  - Auteur du projet associé au modèle utilisateur configuré
+  - Auteur défini côté serveur lors de la création d'un projet
+  - Auteur et date de création exposés en lecture seule par le serializer
+- **Blocages/Notes** :
+  - Première implémentation du modèle `Project`, de son serializer et de sa vue
+    en cours de validation
+  - Modèle `Contributor` non encore implémenté
+  - Permissions métier, routage, migration et création automatique de l'auteur
+    comme contributeur à finaliser
 
 ### Étape 4 : Définir les problèmes et commentaires
 - **Statut** : ❌ Pas commencé
