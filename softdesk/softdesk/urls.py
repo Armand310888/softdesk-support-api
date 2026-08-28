@@ -18,11 +18,13 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
+from projects.views import ProjectViewSet
 from users.views import UserViewSet
 
 router = routers.SimpleRouter()
 
 router.register('users', UserViewSet, basename='users')
+router.register('projects', ProjectViewSet, basename='projects')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
