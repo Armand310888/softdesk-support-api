@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from projects.views import ProjectViewSet
+from projects.views import ProjectViewSet, ContributorViewSet
 from users.views import UserViewSet
 
 router = routers.SimpleRouter()
@@ -30,4 +30,23 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include("rest_framework.urls")),
     path('api/', include(router.urls)),
+    path(
+        'api/projects/<int:project_pk>/contributors/',
+        ContributorViewSet.as_view(
+            {
+                'get': 'list',
+                'post': 'create'
+            }
+        ),
+        name='list_contributors'
+    ),
+    path(
+        'api/projects/<int:project_pk>/contributors/<int:pk>/',
+        ContributorViewSet.as_view(
+            {
+                'delete': 'destroy'
+            }
+        ),
+        name='delete_contributor'
+    ),
 ]

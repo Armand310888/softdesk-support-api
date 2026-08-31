@@ -190,6 +190,8 @@ l'implémentation :
   - Inscription autorisée à partir de 15 ans inclus
   - Consentements `can_be_contacted` et `can_data_be_shared` enregistrés
     séparément
+  - Consentements RGPD sans effet sur les permissions métier ni sur la
+    création d'une association `Contributor`
   - Validation du mot de passe avec les validateurs Django et stockage sous
     forme hachée
   - Consultation et modification d'un profil limitées à son propriétaire
@@ -204,12 +206,23 @@ l'implémentation :
   - Auteur du projet associé au modèle utilisateur configuré
   - Auteur défini côté serveur lors de la création d'un projet
   - Auteur et date de création exposés en lecture seule par le serializer
+  - Modèle `Contributor` utilisé comme association entre un utilisateur et un
+    projet
+  - Unicité d'une association `Contributor` garantie pour chaque couple
+    `(user, project)`
+  - Créateur d'un projet automatiquement enregistré comme contributeur dans
+    la même transaction
+  - Ajout d'un contributeur à partir de son `username` exact
+  - Ajout et suppression des contributeurs réservés à l'auteur du projet
+  - Suppression de l'auteur de la liste des contributeurs interdite
+  - Consultation d'un projet et de ses contributeurs réservée aux
+    contributeurs du projet
+  - Consentements RGPD sans effet sur la création d'un `Contributor` ou sur
+    les permissions métier
 - **Blocages/Notes** :
-  - Première implémentation du modèle `Project`, de son serializer et de sa vue
-    en cours de validation
-  - Modèle `Contributor` non encore implémenté
-  - Permissions métier, routage, migration et création automatique de l'auteur
-    comme contributeur à finaliser
+  - Modèle, migration, serializer, routes, vue et permissions de
+    `Contributor` implémentés
+  - Parcours de l'API des projets et contributeurs à valider manuellement avec Postman
 
 ### Étape 4 : Définir les problèmes et commentaires
 - **Statut** : ❌ Pas commencé
@@ -360,6 +373,21 @@ l'implémentation :
   - la saisie exacte du `username` constitue la solution la plus simple et la
     plus limitée au besoin actuel.
 
+### **[2026-08-31] Décision : Séparation entre consentements RGPD et permissions métier**
+- Raison : Les attributs `can_be_contacted` et `can_data_be_shared` expriment
+  les choix de l'utilisateur concernant l'utilisation de ses données
+  personnelles. Ils ne représentent ni un rôle ni une autorisation d'accès
+  aux ressources de l'API.
+- Impact : Ces consentements sont enregistrés sur le modèle `User`, mais leur
+  valeur n'intervient ni dans les permissions liées aux projets ni dans la
+  création d'une association `Contributor`. L'accès aux ressources métier
+  reste déterminé par les règles d'authentification, la qualité de
+  contributeur et, lorsque nécessaire, celle d'auteur.
+- Alternative considérée : Conditionner l'ajout d'un contributeur ou son accès
+  aux projets à l'un de ces consentements, ce qui mélangerait le recueil du
+  consentement RGPD avec le système d'autorisation métier sans exigence du
+  cahier des charges pour le justifier.
+
 ---
 
-*Dernière mise à jour : 2026-08-25*
+*Dernière mise à jour : 2026-08-31*
