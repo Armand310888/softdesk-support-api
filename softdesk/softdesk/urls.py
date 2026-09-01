@@ -18,7 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from projects.views import ProjectViewSet, ContributorViewSet
+from projects.views import (
+    ProjectViewSet,
+    ContributorViewSet,
+    IssueViewSet
+)
 from users.views import UserViewSet
 
 router = routers.SimpleRouter()
@@ -38,7 +42,7 @@ urlpatterns = [
                 'post': 'create'
             }
         ),
-        name='list_contributors'
+        name='contributors'
     ),
     path(
         'api/projects/<int:project_pk>/contributors/<int:pk>/',
@@ -47,6 +51,27 @@ urlpatterns = [
                 'delete': 'destroy'
             }
         ),
-        name='delete_contributor'
+        name='contributor_delete'
     ),
+    path(
+        'api/projects/<int:project_pk>/issues/',
+        IssueViewSet.as_view(
+            {
+                'get': 'list',
+                'post': 'create'
+            }
+        ),
+        name='issues'
+    ),
+    path(
+        'api/projects/<int:project_pk>/issues/<int:pk>/',
+        IssueViewSet.as_view(
+            {
+                'patch': 'partial_update',
+                'delete': 'destroy',
+                'get': 'retrieve',
+            }
+        ),
+        name='issue_specific'
+    )
 ]

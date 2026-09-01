@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import BasePermission
 
-from .models import Project, Contributor
+from .models import Project, Contributor, Issue
 
 
 class IsAuthor(BasePermission):
@@ -28,11 +28,17 @@ class IsContributor(BasePermission):
 
         return Contributor.objects.filter(
             user=request.user,
-            project_id=view.kwargs.get('project_pk')
+            project_id=project_pk
         ).exists()
 
     def has_object_permission(self, request, view, obj):
+        if isinstance(obj, Project):
+            project = obj
+
+        elif isinstance(obj, Issue):
+            project = obj.project
+
         return Contributor.objects.filter(
             user=request.user,
-            project=obj,
+            project=project,
         ).exists()

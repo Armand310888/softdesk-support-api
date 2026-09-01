@@ -53,8 +53,8 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
 - Appartenance à un seul projet ; un projet peut posséder plusieurs issues
 - Auteur contributeur du projet
 - Assignation facultative à un autre contributeur du même projet
-- Priorité LOW, MEDIUM ou HIGH
-- Balise BUG, FEATURE ou TASK
+- Priorité obligatoire : LOW, MEDIUM ou HIGH
+- Type obligatoire : BUG, FEATURE ou TASK
 - Statut To Do, In Progress ou Finished ; To Do par défaut
 - Horodatage `created_time`
 
@@ -110,6 +110,10 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
   ressource hors User possède un auteur, tandis que le document de sécurité
   cite explicitement Project, Issue et Comment, mais pas Contributor. Le
   modèle Contributor ne possédera pas d'auteur.
+- **Priorité et type d'une issue** : le document de conception définit les
+  valeurs possibles de `priority` et `issue_type` sans préciser si ces champs
+  sont facultatifs. Ils seront obligatoires afin que chaque issue respecte le
+  modèle fonctionnel décrit.
 
 ---
 
@@ -225,14 +229,26 @@ l'implémentation :
   - Parcours de l'API des projets et contributeurs à valider manuellement avec Postman
 
 ### Étape 4 : Définir les problèmes et commentaires
-- **Statut** : ❌ Pas commencé
-- **Décisions prises** : (À remplir)
-- **Blocages/Notes** : (À remplir)
+- **Statut** : ⏳ En cours
+- **Décisions prises** :
+  - Les champs `priority` et `issue_type` d'une issue sont obligatoires
+  - Le champ `description` d'une issue est facultatif
+- **Blocages/Notes** :
+  - Première version du modèle, du serializer, des routes, de la vue et des permissions d'`Issue` implémentée
+  - Migration d'`Issue` effectuée.
+  - Modèle et API de `Comment` non encore implémentés.
 
 ### Étape 5 : Mettre en place les permissions
-- **Statut** : ❌ Pas commencé
-- **Décisions prises** : (À remplir)
-- **Blocages/Notes** : (À remplir)
+- **Statut** : ⏳ En cours
+- **Décisions prises** :
+  - Accès aux ressources d'un projet réservé à ses contributeurs
+  - Modification et suppression d'une ressource réservées à son auteur
+  - Gestion des contributeurs réservée à l'auteur du projet
+- **Blocages/Notes** :
+  - Permissions métier de User, Project, Contributor et Issue implémentées
+    progressivement avec les ressources correspondantes
+  - Authentification JWT non encore configurée
+  - Permissions de Comment à finaliser après l'implémentation de la ressource
 
 ### Étape 6 : Green Code et optimisation
 - **Statut** : ❌ Pas commencé
@@ -322,8 +338,7 @@ l'implémentation :
   - la contrainte d'unicité sur `(user, project)` empêche les ajouts en double.
 - Sécurité :
   - aucun annuaire global des utilisateurs n'est exposé ;
-  - les erreurs ne doivent pas révéler inutilement l'existence d'un compte à
-    un utilisateur non autorisé ;
+  - les erreurs ne doivent pas révéler inutilement l'existence d'un compte àun utilisateur non autorisé ;
   - l'ajout reste soumis aux permissions du projet.
 - Impact : L'API d'ajout d'un contributeur reçoit un `username` plutôt qu'un identifiant utilisateur ou une adresse e-mail. Cette valeur sert uniquement à rechercher le compte et n'est pas stockée dans Contributor.
 - Alternatives considérées :
@@ -341,6 +356,17 @@ l'implémentation :
 - Impact : Ces consentements sont enregistrés sur le modèle `User`, mais leur valeur n'intervient ni dans les permissions liées aux projets ni dans la création d'une association `Contributor`. L'accès aux ressources métier reste déterminé par les règles d'authentification, la qualité de contributeur et, lorsque nécessaire, celle d'auteur.
 - Alternative considérée : Conditionner l'ajout d'un contributeur ou son accès aux projets à l'un de ces consentements, ce qui mélangerait le recueil du consentement RGPD avec le système d'autorisation métier sans exigence du cahier des charges pour le justifier.
 
+### **[2026-08-31] Décision : Champs de classification obligatoires pour les issues**
+- Raison : Le document de conception définit les valeurs possibles de la priorité et du type d'une issue, mais ne précise pas explicitement si ces informations sont facultatives. Le modèle fonctionnel les présente comme des caractéristiques constitutives d'une issue.
+- Impact : Les champs `priority` et `issue_type` seront obligatoires lors de la création d'une issue et ne disposeront pas de valeur par défaut implicite. Chaque issue devra donc être explicitement classée avec une priorité LOW,
+  MEDIUM ou HIGH et un type BUG, FEATURE ou TASK.
+- Alternative considérée : Rendre ces champs facultatifs ou leur attribuer une valeur par défaut, au risque de créer des issues dont la classification ne résulte pas d'un choix explicite de l'utilisateur.
+
+### **[2026-09-01] Décision : Description facultative pour les issues**
+- Raison : Les documents sources mentionnent une description pour les issues sans préciser explicitement si elle est obligatoire. Le titre, la priorité et le type fournissent les informations minimales nécessaires pour identifier et classer une issue, tandis qu'une description détaillée peut ne pas être disponible au moment de sa création.
+- Impact : Le champ `description` peut être vide lors de la création ou de la modification d'une issue, tandis que le titre reste obligatoire. Il s'agit d'un choix de conception du projet et non d'une exigence explicite du cahier des charges.
+- Alternative considérée : Exiger une description pour chaque issue, ce qui imposerait de fournir un contenu détaillé dès sa création.
+
 ---
 
-*Dernière mise à jour : 2026-08-31*
+*Dernière mise à jour : 2026-09-01*

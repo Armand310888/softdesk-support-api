@@ -63,3 +63,78 @@ class Contributor(models.Model):
     created_time = models.DateTimeField(
         auto_now_add=True
     )
+
+
+class Issue(models.Model):
+
+    class IssuePriority(models.TextChoices):
+        LOW = 'LOW', 'Low'
+        MEDIUM = 'MEDIUM', 'Medium'
+        HIGH = 'HIGH', 'High'
+
+    class IssueType(models.TextChoices):
+        BUG = 'BUG', 'Bug'
+        FEATURE = 'FEATURE', 'Feature'
+        TASK = 'TASK', 'Task'
+
+    class Status (models.TextChoices):
+        TO_DO = 'TO_DO', 'To do'
+        IN_PROGRESS = 'IN_PROGRESS', 'In progress'
+        FINISHED = 'FINISHED', 'Finished'
+
+    title = models.CharField(
+        'Title',
+        max_length=128
+    )
+
+    description = models.TextField(
+        'Description',
+        max_length=8192,
+        blank=True
+    )
+
+    priority = models.CharField(
+        'Priority',
+        max_length=11,
+        choices=IssuePriority.choices
+    )
+
+    issue_type = models.CharField(
+        'Issue Type',
+        max_length=11,
+        choices=IssueType.choices
+    )
+
+    status = models.CharField(
+        'Status',
+        max_length=11,
+        choices=Status.choices,
+        default=Status.TO_DO
+    )
+
+    created_time = models.DateTimeField(
+        'Created Time',
+        auto_now_add=True
+    )
+
+    project = models.ForeignKey(
+        to=Project,
+        on_delete=models.CASCADE,
+        verbose_name='Project'
+    )
+
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        verbose_name='Author',
+        related_name='authored_issues'
+    )
+
+    assigned_to = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name='Assigned to',
+        related_name='assigned_issues'
+    )
