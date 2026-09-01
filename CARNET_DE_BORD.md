@@ -278,70 +278,42 @@ l'implémentation :
 - Convention attendue : `type(scope): description courte`.
 
 ### **[2026-08-24] Décision : Arbitrage des ambiguïtés sur User et Contributor**
-- Raison : Les deux documents sources sont ambigus sur l'âge minimal et sur
-  l'application de la notion d'auteur à Contributor.
-- Impact : L'inscription est autorisée à partir de 15 ans inclus et Contributor
-  ne possède pas d'auteur.
-- Alternative considérée : Exiger un âge strictement supérieur à 15 ans et
-  ajouter un auteur à Contributor.
+- Raison : Les deux documents sources sont ambigus sur l'âge minimal et sur l'application de la notion d'auteur à Contributor.
+- Impact : L'inscription est autorisée à partir de 15 ans inclus et Contributor ne possède pas d'auteur.
+- Alternative considérée : Exiger un âge strictement supérieur à 15 ans et ajouter un auteur à Contributor.
 
 ### **[2026-08-24] Décision : Anonymisation des utilisateurs et conservation des ressources**
-- Raison : Le droit à l'oubli impose de rendre non identifiantes les données
-  personnelles d'un utilisateur, mais la suppression de son profil ne doit pas entraîner automatiquement la disparition des projets, issues et commentaires créés dans un contexte collectif.
+- Raison : Le droit à l'oubli impose de rendre non identifiantes les données personnelles d'un utilisateur, mais la suppression de son profil ne doit pas entraîner automatiquement la disparition des projets, issues et commentaires créés dans un contexte collectif.
 - Stratégie retenue :
   - avant l'anonymisation, l'utilisateur peut supprimer les ressources dont il est l'auteur en utilisant les permissions ordinaires ;
   - le compte est anonymisé et désactivé plutôt que supprimé physiquement ;
-  - les valeurs permettant d'identifier personnellement l'utilisateur sont
-    remplacées par des valeurs anonymes non identifiantes ;
+  - les valeurs permettant d'identifier personnellement l'utilisateur sont remplacées par des valeurs anonymes non identifiantes ;
   - les consentements sont révoqués et le mot de passe devient inutilisable ;
   - les appartenances Contributor de l'utilisateur sont supprimées ;
   - ses assignations actives aux issues sont retirées ;
-  - les projets, issues et commentaires conservés restent associés au compte
-    technique anonymisé afin que chaque ressource conserve un auteur, sans
-    révéler l'identité de l'ancien utilisateur.
+  - les projets, issues et commentaires conservés restent associés au compte technique anonymisé afin que chaque ressource conserve un auteur, sans révéler l'identité de l'ancien utilisateur.
 - Permissions après anonymisation :
-  - une ressource associée à un auteur anonymisé reste consultable par les
-    contributeurs autorisés ;
-  - elle ne peut plus être modifiée ou supprimée par l'API métier ordinaire,
-    puisque seul son auteur dispose normalement de ces droits ;
-  - aucun autre utilisateur ne devient artificiellement l'auteur de la
-    ressource ;
-  - une suppression administrative exceptionnelle reste possible en dehors
-    des permissions métier ordinaires, notamment si un contenu libre contient
-    encore des données personnelles.
+  - une ressource associée à un auteur anonymisé reste consultable par les contributeurs autorisés ;
+  - elle ne peut plus être modifiée ou supprimée par l'API métier ordinaire, puisque seul son auteur dispose normalement de ces droits ;
+  - aucun autre utilisateur ne devient artificiellement l'auteur de la ressource ;
+  - une suppression administrative exceptionnelle reste possible en dehors des permissions métier ordinaires, notamment si un contenu libre contient encore des données personnelles.
 - Impact :
   - les ressources métier et le travail collectif sont conservés ;
   - les ressources anonymisées deviennent en principe figées ;
   - l'interface pourra afficher un libellé tel que « Utilisateur supprimé » ;
-  - le processus de suppression du profil devra orchestrer l'anonymisation,
-    la désactivation, la suppression des appartenances Contributor et le
-    retrait des assignations.
-- Alternative considérée : Supprimer toutes les ressources de l'utilisateur,
-  rendre leurs auteurs facultatifs, les réattribuer à d'autres utilisateurs
-  ou accorder des droits de modération supplémentaires.
+  - le processus de suppression du profil devra orchestrer l'anonymisation, la désactivation, la suppression des appartenances Contributor et le retrait des assignations.
+- Alternative considérée : Supprimer toutes les ressources de l'utilisateur, rendre leurs auteurs facultatifs, les réattribuer à d'autres utilisateurs ou accorder des droits de modération supplémentaires.
 
 ### **[2026-08-24] Décision : Découpage du domaine en deux applications Django**
-- Raison : Séparer la gestion de l'identité utilisateur du domaine métier de
-  SoftDesk, tout en évitant un découpage excessif en une application par
-  modèle.
+- Raison : Séparer la gestion de l'identité utilisateur du domaine métier de SoftDesk, tout en évitant un découpage excessif en une application par modèle.
 - Structure retenue :
-  - `users` contient le modèle User et les fonctionnalités liées à
-    l'inscription, à l'authentification, au profil, aux consentements et à
-    l'anonymisation ;
-  - `projects` contient les modèles Project, Contributor, Issue et Comment,
-    ainsi que les règles et fonctionnalités du domaine métier associées.
-- Impact : L'application `projects` référence le modèle utilisateur configuré
-  par Django, tandis que `users` reste indépendante des modèles du domaine.
-  Le package `softdesk` existant conserve son rôle de configuration globale du
-  projet Django.
-- Alternative considérée : Regrouper tout le projet dans une seule
-  application ou séparer davantage Project, Issue et Comment dans plusieurs
-  applications.
+  - `users` contient le modèle User et les fonctionnalités liées à l'inscription, à l'authentification, au profil, aux consentements et à l'anonymisation ;
+  - `projects` contient les modèles Project, Contributor, Issue et Comment, ainsi que les règles et fonctionnalités du domaine métier associées.
+- Impact : L'application `projects` référence le modèle utilisateur configuré par Django, tandis que `users` reste indépendante des modèles du domaine. Le package `softdesk` existant conserve son rôle de configuration globale du projet Django.
+- Alternative considérée : Regrouper tout le projet dans une seule application ou séparer davantage Project, Issue et Comment dans plusieurs applications.
 
 ### **[2026-08-25] Décision : Ajout des contributeurs par le nom d'utilisateur**
-- Raison : Permettre à l'auteur d'un projet de gérer ses contributeurs sans
-  exposer une liste générale d'utilisateurs ni utiliser leurs données
-  personnelles, comme leur adresse e-mail.
+- Raison : Permettre à l'auteur d'un projet de gérer ses contributeurs sans exposer une liste générale d'utilisateurs ni utiliser leurs données personnelles, comme leur adresse e-mail.
 - Stratégie retenue :
   - seul l'auteur du projet peut ajouter un contributeur ;
   - l'auteur saisit le `username` exact de l'utilisateur ciblé ;
@@ -353,40 +325,21 @@ l'implémentation :
   - les erreurs ne doivent pas révéler inutilement l'existence d'un compte à
     un utilisateur non autorisé ;
   - l'ajout reste soumis aux permissions du projet.
-- Impact : L'API d'ajout d'un contributeur reçoit un `username` plutôt qu'un
-  identifiant utilisateur ou une adresse e-mail. Cette valeur sert uniquement
-  à rechercher le compte et n'est pas stockée dans Contributor.
+- Impact : L'API d'ajout d'un contributeur reçoit un `username` plutôt qu'un identifiant utilisateur ou une adresse e-mail. Cette valeur sert uniquement à rechercher le compte et n'est pas stockée dans Contributor.
 - Alternatives considérées :
-  - proposer une barre de recherche permettant de saisir tout ou partie d'un
-    `username` et d'afficher les comptes correspondants ;
-  - afficher la liste des utilisateurs afin que l'auteur du projet sélectionne
-    directement ceux qu'il souhaite ajouter ;
-  - compléter l'une de ces méthodes par un système d'invitation permettant à
-    l'utilisateur ciblé d'accepter ou de refuser de devenir contributeur.
+  - proposer une barre de recherche permettant de saisir tout ou partie d'un `username` et d'afficher les comptes correspondants ;
+  - afficher la liste des utilisateurs afin que l'auteur du projet sélectionne directement ceux qu'il souhaite ajouter ;
+  - compléter l'une de ces méthodes par un système d'invitation permettant à l'utilisateur ciblé d'accepter ou de refuser de devenir contributeur.
 - Raisons du rejet :
-  - la recherche partielle et la liste globale exposeraient davantage
-    l'existence et les noms des comptes utilisateurs ;
-  - elles nécessiteraient un endpoint supplémentaire, des permissions et
-    éventuellement de la pagination ;
-  - le système d'invitation ajouterait des états et un workflow qui ne sont pas
-    demandés par le cahier des charges ;
-  - la saisie exacte du `username` constitue la solution la plus simple et la
-    plus limitée au besoin actuel.
+  - la recherche partielle et la liste globale exposeraient davantage l'existence et les noms des comptes utilisateurs ;
+  - elles nécessiteraient un endpoint supplémentaire, des permissions et éventuellement de la pagination ;
+  - le système d'invitation ajouterait des états et un workflow qui ne sont pas demandés par le cahier des charges ;
+  - la saisie exacte du `username` constitue la solution la plus simple et la plus limitée au besoin actuel.
 
 ### **[2026-08-31] Décision : Séparation entre consentements RGPD et permissions métier**
-- Raison : Les attributs `can_be_contacted` et `can_data_be_shared` expriment
-  les choix de l'utilisateur concernant l'utilisation de ses données
-  personnelles. Ils ne représentent ni un rôle ni une autorisation d'accès
-  aux ressources de l'API.
-- Impact : Ces consentements sont enregistrés sur le modèle `User`, mais leur
-  valeur n'intervient ni dans les permissions liées aux projets ni dans la
-  création d'une association `Contributor`. L'accès aux ressources métier
-  reste déterminé par les règles d'authentification, la qualité de
-  contributeur et, lorsque nécessaire, celle d'auteur.
-- Alternative considérée : Conditionner l'ajout d'un contributeur ou son accès
-  aux projets à l'un de ces consentements, ce qui mélangerait le recueil du
-  consentement RGPD avec le système d'autorisation métier sans exigence du
-  cahier des charges pour le justifier.
+- Raison : Les attributs `can_be_contacted` et `can_data_be_shared` expriment les choix de l'utilisateur concernant l'utilisation de ses données personnelles. Ils ne représentent ni un rôle ni une autorisation d'accès aux ressources de l'API.
+- Impact : Ces consentements sont enregistrés sur le modèle `User`, mais leur valeur n'intervient ni dans les permissions liées aux projets ni dans la création d'une association `Contributor`. L'accès aux ressources métier reste déterminé par les règles d'authentification, la qualité de contributeur et, lorsque nécessaire, celle d'auteur.
+- Alternative considérée : Conditionner l'ajout d'un contributeur ou son accès aux projets à l'un de ces consentements, ce qui mélangerait le recueil du consentement RGPD avec le système d'autorisation métier sans exigence du cahier des charges pour le justifier.
 
 ---
 

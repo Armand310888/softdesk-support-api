@@ -11,7 +11,10 @@ class Project(models.Model):
         IOS = "IOS", "iOS"
         ANDROID = "ANDROID", "Android"
 
-    name = models.CharField('Name', max_length=128)
+    name = models.CharField(
+        'Name',
+        max_length=128
+    )
 
     description = models.TextField(
         'Description',
@@ -25,7 +28,10 @@ class Project(models.Model):
         choices=ProjectType.choices
     )
 
-    created_time = models.DateTimeField('Created Time', auto_now_add=True)
+    created_time = models.DateTimeField(
+        'Created Time',
+        auto_now_add=True
+    )
 
     author = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
