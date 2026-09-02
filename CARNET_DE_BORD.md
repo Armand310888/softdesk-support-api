@@ -77,7 +77,10 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
   - seuls les contributeurs accèdent à un projet, à ses issues et à ses
     commentaires ;
   - seul l'auteur d'un projet, d'une issue ou d'un commentaire peut le
-    modifier ou le supprimer ;
+    modifier ou le supprimer en temps normal ;
+  - l'auteur d'un projet peut modifier ou supprimer une issue, et supprimer un
+    commentaire, lorsque l'auteur de cette ressource est anonymisé ou n'est
+    plus contributeur du projet ;
   - les autres contributeurs autorisés disposent d'un accès en lecture.
 - **Traçabilité** : les ressources hors utilisateur doivent posséder un
   auteur, sous réserve de l'ambiguïté concernant Contributor indiquée plus
@@ -199,8 +202,12 @@ l'implémentation :
     forme hachée
   - Consultation et modification d'un profil limitées à son propriétaire
   - Suppression du profil réalisée par anonymisation et désactivation du compte
+  - Suppression des associations `Contributor` et retrait des assignations aux
+    issues dans la même transaction que l'anonymisation
 - **Blocages/Notes** :
   - Parcours de l'API utilisateur validés manuellement avec Postman
+  - Stratégie de gestion et de transfert des projets dont l'auteur est
+    anonymisé à définir avec le client ou le donneur d'ordre
 
 ### Étape 3 : Définir les projets et contributeurs
 - **Statut** : ⏳ En cours
@@ -246,6 +253,10 @@ l'implémentation :
 - **Décisions prises** :
   - Accès aux ressources d'un projet réservé à ses contributeurs
   - Modification et suppression d'une ressource réservées à son auteur
+  - Modification et suppression d'une issue par l'auteur du projet autorisées
+    lorsque l'auteur de l'issue est anonymisé ou n'est plus contributeur
+  - Suppression d'un commentaire par l'auteur du projet autorisée lorsque
+    l'auteur du commentaire est anonymisé ou n'est plus contributeur
   - Gestion des contributeurs réservée à l'auteur du projet
 - **Blocages/Notes** :
   - Permissions métier de User, Project, Contributor, Issue et Comment
@@ -312,12 +323,19 @@ l'implémentation :
   - les projets, issues et commentaires conservés restent associés au compte technique anonymisé afin que chaque ressource conserve un auteur, sans révéler l'identité de l'ancien utilisateur.
 - Permissions après anonymisation :
   - une ressource associée à un auteur anonymisé reste consultable par les contributeurs autorisés ;
-  - elle ne peut plus être modifiée ou supprimée par l'API métier ordinaire, puisque seul son auteur dispose normalement de ces droits ;
+  - une issue associée à un auteur anonymisé peut être modifiée ou supprimée
+    par l'auteur du projet concerné ;
+  - un commentaire associé à un auteur anonymisé peut être supprimé, mais pas
+    modifié, par l'auteur du projet concerné ;
+  - la gestion d'un projet dont l'auteur est anonymisé reste volontairement non
+    tranchée dans l'attente d'un arbitrage du client ou du donneur d'ordre ;
   - aucun autre utilisateur ne devient artificiellement l'auteur de la ressource ;
   - une suppression administrative exceptionnelle reste possible en dehors des permissions métier ordinaires, notamment si un contenu libre contient encore des données personnelles.
 - Impact :
   - les ressources métier et le travail collectif sont conservés ;
-  - les ressources anonymisées deviennent en principe figées ;
+  - les issues ne deviennent pas définitivement figées et les commentaires
+    peuvent encore être supprimés lorsque leur auteur est anonymisé ou quitte
+    le projet ;
   - l'interface pourra afficher un libellé tel que « Utilisateur supprimé » ;
   - le processus de suppression du profil devra orchestrer l'anonymisation, la désactivation, la suppression des appartenances Contributor et le retrait des assignations.
 - Alternative considérée : Supprimer toutes les ressources de l'utilisateur, rendre leurs auteurs facultatifs, les réattribuer à d'autres utilisateurs ou accorder des droits de modération supplémentaires.
@@ -381,6 +399,21 @@ l'implémentation :
   Django et ajouter un champ UUID distinct avec une contrainte d'unicité, ce
   qui introduirait deux identifiants pour la même ressource sans besoin métier
   identifié.
+
+### **[2026-09-02] Décision : Gestion des issues et commentaires orphelins par l'auteur du projet**
+- Raison : Une issue ou un commentaire ne doit pas devenir impossible à gérer lorsque son auteur est anonymisé ou n'est plus contributeur du projet. En tant que responsable du projet, son auteur constitue le niveau d'autorité approprié pour assurer la continuité de gestion de ces ressources.
+- Règle retenue : Lorsque l'auteur d'une ressource est anonymisé ou n'est plus contributeur, l'auteur du projet peut modifier ou supprimer ses issues et supprimer ses commentaires. Il ne peut pas modifier ces commentaires. Tant que l'auteur de la ressource reste contributeur, il conserve seul les droits ordinaires de modification et de suppression.
+- Impact : Cette autorisation constitue une exception ciblée à la règle selon laquelle seul l'auteur d'une ressource peut la modifier ou la supprimer. Elle n'entraîne aucune réattribution de la ressource et ne donne pas ces droits aux autres contributeurs. La gestion des projets dont l'auteur est anonymisé reste volontairement hors de cette décision et devra faire l'objet d'un arbitrage ultérieur.
+- Alternative considérée : Laisser définitivement figées les issues et les commentaires dont l'auteur n'est plus en mesure d'exercer ses droits, avec une éventuelle intervention administrative hors de l'API métier.
+
+### **[2026-09-02] Décision en attente : Projets dont l'auteur est anonymisé**
+- Constat : Lors de la suppression d'un profil, le compte de l'utilisateur est anonymisé et désactivé, ses associations `Contributor` sont supprimées, mais
+  les projets dont il est l'auteur sont conservés et restent liés à ce compte technique afin de préserver leur traçabilité.
+- Ambiguïté : Le cahier des charges ne précise pas qui doit reprendre la responsabilité de ces projets, comment choisir un éventuel nouvel auteur, ni si un transfert doit être automatique, soumis à acceptation ou réalisé par un administrateur.
+- Décision actuelle : Aucun transfert d'auteur ni droit de reprise supplémentaire n'est implémenté tant que ces règles métier ne sont pas
+  validées. La question reste volontairement ouverte plutôt que de déduire une politique d'attribution non demandée par les sources.
+- Arbitrage nécessaire : Un échange avec le client ou le donneur d'ordre est indispensable pour définir la stratégie de transfert des ressources, notamment le choix du bénéficiaire, les conditions de son accord, le cas d'un projet sans autre contributeur et les exigences de traçabilité du transfert.
+- Options à évaluer : Transfert à un contributeur désigné, sélection d'un nouvel auteur avant anonymisation, reprise administrative ou conservation du projet sans auteur actif avec des droits limités.
 
 ---
 

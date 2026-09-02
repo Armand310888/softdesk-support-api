@@ -22,6 +22,7 @@ from .permissions import (
     IsAuthor,
     IsContributor,
     IsProjectAuthor,
+    CanManageResource,
 )
 
 
@@ -44,7 +45,7 @@ class ProjectViewSet(ModelViewSet):
         elif self.action == 'retrieve':
             permission_classes = [IsAuthenticated, IsContributor]
         else:
-            permission_classes = [IsAuthenticated, IsAuthor]
+            permission_classes = [IsAuthenticated, IsContributor, IsAuthor]
 
         return [permission() for permission in permission_classes]
 
@@ -122,7 +123,11 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
         if self.action in ['create', 'retrieve', 'list']:
             permission_classes = [IsAuthenticated, IsContributor]
         else:
-            permission_classes = [IsAuthenticated, IsContributor, IsAuthor]
+            permission_classes = [
+                IsAuthenticated,
+                IsContributor,
+                CanManageResource,
+            ]
 
         return [permission() for permission in permission_classes]
 
@@ -153,8 +158,14 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
     def get_permissions(self):
         if self.action in ['create', 'list', 'retrieve']:
             permission_classes = [IsAuthenticated, IsContributor]
-        else:
+        elif self.action == 'partial_update':
             permission_classes = [IsAuthenticated, IsContributor, IsAuthor]
+        else:
+            permission_classes = [
+                IsAuthenticated,
+                IsContributor,
+                CanManageResource,
+            ]
 
         return [permission() for permission in permission_classes]
 

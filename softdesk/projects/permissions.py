@@ -19,6 +19,25 @@ class IsProjectAuthor(BasePermission):
         return request.user == project.author
 
 
+class CanManageResource(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.author == request.user:
+            return True
+
+        project = get_object_or_404(
+            Project,
+            pk=view.kwargs.get('project_pk'),
+        )
+
+        return (
+            request.user == project.author
+            and not Contributor.objects.filter(
+                user=obj.author,
+                project=project
+            ).exists()
+        )
+
+
 class IsContributor(BasePermission):
     def has_permission(self, request, view):
         project_pk = view.kwargs.get('project_pk')
