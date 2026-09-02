@@ -251,6 +251,9 @@ l'implémentation :
 ### Étape 5 : Mettre en place les permissions
 - **Statut** : ⏳ En cours
 - **Décisions prises** :
+  - Authentification de l'API assurée par JWT avec Simple JWT
+  - Durée de validité d'un jeton d'accès fixée à 5 minutes
+  - Durée de validité d'un jeton de rafraîchissement fixée à 1 jour
   - Accès aux ressources d'un projet réservé à ses contributeurs
   - Modification et suppression d'une ressource réservées à son auteur
   - Modification et suppression d'une issue par l'auteur du projet autorisées
@@ -261,12 +264,19 @@ l'implémentation :
 - **Blocages/Notes** :
   - Permissions métier de User, Project, Contributor, Issue et Comment
     implémentées progressivement avec les ressources correspondantes
-  - Authentification JWT non encore configurée
+  - Routes d'obtention et de rafraîchissement des jetons JWT configurées
+  - Parcours d'authentification JWT à valider manuellement avec Postman
 
 ### Étape 6 : Green Code et optimisation
-- **Statut** : ❌ Pas commencé
-- **Décisions prises** : (À remplir)
-- **Blocages/Notes** : (À remplir)
+- **Statut** : ⏳ En cours
+- **Décisions prises** :
+  - Pagination globale des listes avec `PageNumberPagination`
+  - Taille de page fixée à 10 ressources
+- **Blocages/Notes** :
+  - Pagination configurée pour les endpoints de liste qui utilisent le
+    comportement standard des `ModelViewSet`
+  - Comportement de la pagination à valider manuellement avec Postman
+  - Optimisation des requêtes restant à étudier
 
 ---
 
@@ -339,6 +349,18 @@ l'implémentation :
   - l'interface pourra afficher un libellé tel que « Utilisateur supprimé » ;
   - le processus de suppression du profil devra orchestrer l'anonymisation, la désactivation, la suppression des appartenances Contributor et le retrait des assignations.
 - Alternative considérée : Supprimer toutes les ressources de l'utilisateur, rendre leurs auteurs facultatifs, les réattribuer à d'autres utilisateurs ou accorder des droits de modération supplémentaires.
+
+### **[2026-09-02] Décision : Authentification JWT et pagination globale**
+- Raison : Répondre aux exigences de sécurisation de l'API par JWT et de
+  pagination obligatoire des ressources.
+- Impact : L'authentification DRF repose sur `JWTAuthentication`. L'API expose
+  des routes permettant d'obtenir une paire de jetons et de rafraîchir le
+  jeton d'accès. Les listes prises en charge par le comportement standard des
+  `ModelViewSet` sont paginées par groupes de 10 ressources.
+- Paramètres retenus : Les jetons d'accès expirent après 5 minutes et les
+  jetons de rafraîchissement après 1 jour.
+- Alternative considérée : L'authentification de session de l'interface
+  navigable DRF n'est pas conservée afin que l'API utilise exclusivement JWT.
 
 ### **[2026-08-24] Décision : Découpage du domaine en deux applications Django**
 - Raison : Séparer la gestion de l'identité utilisateur du domaine métier de SoftDesk, tout en évitant un découpage excessif en une application par modèle.
