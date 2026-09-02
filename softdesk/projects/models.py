@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 from django.conf import settings
@@ -137,4 +138,34 @@ class Issue(models.Model):
         null=True,
         verbose_name='Assigned to',
         related_name='assigned_issues'
+    )
+
+
+class Comment(models.Model):
+    description = models.TextField(
+        'Description',
+        max_length=8192
+    )
+
+    created_time = models.DateTimeField(
+        'Created Time',
+        auto_now_add=True
+    )
+
+    issue = models.ForeignKey(
+        to=Issue,
+        on_delete=models.CASCADE,
+        verbose_name='Issue'
+    )
+
+    author = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        verbose_name='Author'
+    )
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
     )

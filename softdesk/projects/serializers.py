@@ -4,7 +4,7 @@ from rest_framework.serializers import (
     ValidationError
 )
 
-from .models import Project, Contributor, Issue
+from .models import Project, Contributor, Issue, Comment
 from users.models import User
 
 
@@ -103,3 +103,23 @@ class IssueSerializer(ModelSerializer):
             )
 
         return value
+
+
+class CommentSerializer(ModelSerializer):
+
+    class Meta:
+        model = Comment
+
+        fields = [
+            'id',
+            'description',
+            'created_time',
+            'issue',
+            'author',
+        ]
+
+        read_only_fields = [
+            'created_time',
+            'author',
+            'issue',
+        ]

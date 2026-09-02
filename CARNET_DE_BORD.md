@@ -128,7 +128,6 @@ l'implémentation :
 - traduction Django de la relation entre User, Contributor et Project ;
 - contraintes d'unicité, notamment pour un contributeur dans un projet ;
 - cible technique de l'assignation d'une issue ;
-- utilisation de l'UUID de Comment comme clé primaire ou comme champ unique ;
 - règles d'unicité de `username` et de l'adresse e-mail ;
 - autres choix de structure interne aux applications Django.
 
@@ -233,10 +232,14 @@ l'implémentation :
 - **Décisions prises** :
   - Les champs `priority` et `issue_type` d'une issue sont obligatoires
   - Le champ `description` d'une issue est facultatif
+  - L'UUID d'un commentaire est utilisé comme clé primaire
 - **Blocages/Notes** :
   - Première version du modèle, du serializer, des routes, de la vue et des permissions d'`Issue` implémentée
   - Migration d'`Issue` effectuée.
-  - Modèle et API de `Comment` non encore implémentés.
+  - Modèle, serializer, routes, vue et permissions de `Comment` implémentés
+  - Migration `0004_comment` créée et appliquée
+  - Parcours de l'API des issues et commentaires à valider manuellement avec
+    Postman
 
 ### Étape 5 : Mettre en place les permissions
 - **Statut** : ⏳ En cours
@@ -245,10 +248,9 @@ l'implémentation :
   - Modification et suppression d'une ressource réservées à son auteur
   - Gestion des contributeurs réservée à l'auteur du projet
 - **Blocages/Notes** :
-  - Permissions métier de User, Project, Contributor et Issue implémentées
-    progressivement avec les ressources correspondantes
+  - Permissions métier de User, Project, Contributor, Issue et Comment
+    implémentées progressivement avec les ressources correspondantes
   - Authentification JWT non encore configurée
-  - Permissions de Comment à finaliser après l'implémentation de la ressource
 
 ### Étape 6 : Green Code et optimisation
 - **Statut** : ❌ Pas commencé
@@ -338,7 +340,7 @@ l'implémentation :
   - la contrainte d'unicité sur `(user, project)` empêche les ajouts en double.
 - Sécurité :
   - aucun annuaire global des utilisateurs n'est exposé ;
-  - les erreurs ne doivent pas révéler inutilement l'existence d'un compte àun utilisateur non autorisé ;
+  - les erreurs ne doivent pas révéler inutilement l'existence d'un compte à un utilisateur non autorisé ;
   - l'ajout reste soumis aux permissions du projet.
 - Impact : L'API d'ajout d'un contributeur reçoit un `username` plutôt qu'un identifiant utilisateur ou une adresse e-mail. Cette valeur sert uniquement à rechercher le compte et n'est pas stockée dans Contributor.
 - Alternatives considérées :
@@ -367,6 +369,19 @@ l'implémentation :
 - Impact : Le champ `description` peut être vide lors de la création ou de la modification d'une issue, tandis que le titre reste obligatoire. Il s'agit d'un choix de conception du projet et non d'une exigence explicite du cahier des charges.
 - Alternative considérée : Exiger une description pour chaque issue, ce qui imposerait de fournir un contenu détaillé dès sa création.
 
+### **[2026-09-02] Décision : UUID de Comment utilisé comme clé primaire**
+- Raison : Le cahier des charges exige un identifiant unique de type UUID pour
+  chaque commentaire. L'utiliser directement comme clé primaire garantit cette
+  unicité sans conserver en parallèle un identifiant numérique interne qui ne
+  serait pas utile à l'API.
+- Impact : Chaque commentaire est identifié dans les URLs et les relations par
+  un UUID généré automatiquement et non modifiable. Les routes de détail
+  utilisent donc un convertisseur UUID.
+- Alternative considérée : Conserver la clé primaire numérique créée par
+  Django et ajouter un champ UUID distinct avec une contrainte d'unicité, ce
+  qui introduirait deux identifiants pour la même ressource sans besoin métier
+  identifié.
+
 ---
 
-*Dernière mise à jour : 2026-09-01*
+*Dernière mise à jour : 2026-09-02*

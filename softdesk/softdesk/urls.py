@@ -21,7 +21,8 @@ from rest_framework import routers
 from projects.views import (
     ProjectViewSet,
     ContributorViewSet,
-    IssueViewSet
+    IssueViewSet,
+    CommentViewSet
 )
 from users.views import UserViewSet
 
@@ -73,5 +74,24 @@ urlpatterns = [
             }
         ),
         name='issue_specific'
+    ),
+    path(
+        'api/projects/<int:project_pk>/issues/<int:issue_pk>/comments/',
+        CommentViewSet.as_view(
+            {
+                'get': 'list',
+                'post': 'create',
+            }
+        )
+    ),
+    path(
+        'api/projects/<int:project_pk>/issues/<int:issue_pk>/comments/<uuid:pk>/',
+        CommentViewSet.as_view(
+            {
+                'patch': 'partial_update',
+                'delete': 'destroy',
+                'get': 'retrieve',
+            }
+        ),
     )
 ]

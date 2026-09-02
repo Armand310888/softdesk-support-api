@@ -9,12 +9,14 @@ from rest_framework.viewsets import ModelViewSet
 from .models import (
     Project,
     Contributor,
-    Issue
+    Issue,
+    Comment
 )
 from .serializers import (
     ProjectSerializer,
     ContributorSerializer,
-    IssueSerializer
+    IssueSerializer,
+    CommentSerializer,
 )
 from .permissions import (
     IsAuthor,
@@ -141,3 +143,35 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
         context = super().get_serializer_context()
         context['project'] = self.get_project()
         return context
+
+
+class CommentViewSet(ProjectContextMixin, ModelViewSet):
+    serializer_class = CommentSerializer
+
+    http_method_names = ['post', 'patch', 'get', 'delete']
+
+    def get_permissions(self):
+        if self.action in ['create', 'list', 'retrieve']:
+            permission_classes = [IsAuthenticated, IsContributor]
+        else:
+            permission_classes = [IsAuthenticated, IsContributor, IsAuthor]
+
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        return Comment.objects.filter(
+            issue__project__id=self.kwargs.get('project_pk'),
+            issue_id=self.kwargs.get('issue_pk')
+        )
+
+    def perform_create(self, serializer):
+        issue = get_object_or_404(
+            Issue,
+            pk=self.kwargs.get('issue_pk'),
+            project_id=self.kwargs.get('project_pk')
+        )
+
+        serializer.save(
+            author=self.request.user,
+            issue=issue
+        )
