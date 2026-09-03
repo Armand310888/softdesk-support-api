@@ -1,27 +1,37 @@
 from django.db import transaction
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from projects.models import Contributor, Issue
 from .models import User
-from .permissions import IsSelf
+from .permissions import IsSelf, IsNotAuthenticated
 from .serializers import UserSerializer
+from .throttles import RegistrationRateThrottle, LoginRateThrottle
 
 
 class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
 
-    http_method_names = ["get", "post", "patch", "delete"]
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_permissions(self):
-        if self.action == "create":
-            permission_classes = [AllowAny]
+        if self.action == 'create':
+            permission_classes = [IsNotAuthenticated]
         else:
             permission_classes = [IsAuthenticated, IsSelf]
 
         return [permission() for permission in permission_classes]
+
+    def get_throttles(self):
+        throttles = super().get_throttles()
+
+        if self.action == 'create':
+            throttles.append(RegistrationRateThrottle())
+
+        return throttles
 
     def get_queryset(self):
         return User.objects.filter(is_anonymized=False)
@@ -50,3 +60,7 @@ class UserViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class LoginView(TokenObtainPairView):
+    throttle_classes = [LoginRateThrottle]

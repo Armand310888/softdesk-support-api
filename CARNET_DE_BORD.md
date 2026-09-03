@@ -254,6 +254,15 @@ l'implémentation :
   - Authentification de l'API assurée par JWT avec Simple JWT
   - Durée de validité d'un jeton d'accès fixée à 5 minutes
   - Durée de validité d'un jeton de rafraîchissement fixée à 1 jour
+  - Rotation des jetons de rafraîchissement activée
+  - Mise en liste noire de l'ancien jeton de rafraîchissement après sa
+    rotation
+  - Limitation globale du nombre de requêtes anonymes et authentifiées avec
+    le système de throttling de Django REST Framework
+  - Limitation spécifique des tentatives de connexion à 5 par minute
+  - Limitation spécifique des inscriptions à 5 par heure
+  - Inscription réservée aux utilisateurs non authentifiés afin d'éviter
+    qu'un compte connecté puisse créer une quantité illimitée de comptes
   - Accès aux ressources d'un projet réservé à ses contributeurs
   - Modification et suppression d'une ressource réservées à son auteur
   - Modification et suppression d'une issue par l'auteur du projet autorisées
@@ -265,7 +274,14 @@ l'implémentation :
   - Permissions métier de User, Project, Contributor, Issue et Comment
     implémentées progressivement avec les ressources correspondantes
   - Routes d'obtention et de rafraîchissement des jetons JWT configurées
-  - Parcours d'authentification JWT à valider manuellement avec Postman
+  - Application de blacklist de Simple JWT installée et migrations appliquées
+  - Rotation, blacklist et throttling à valider par des parcours fonctionnels
+    avec Postman
+  - La stratégie JWT actuelle ne prévoit pas de révocation immédiate des
+    jetons lors d'une déconnexion ou d'un changement de mot de passe
+  - Des tests automatisés de sécurité pourront être ajoutés ultérieurement
+    pour prévenir les régressions sur l'authentification, le throttling et les
+    permissions
 
 ### Étape 6 : Green Code et optimisation
 - **Statut** : ⏳ En cours
@@ -277,6 +293,82 @@ l'implémentation :
     comportement standard des `ModelViewSet`
   - Comportement de la pagination à valider manuellement avec Postman
   - Optimisation des requêtes restant à étudier
+
+---
+
+## 🔒 DÉMARCHE DE RÉDUCTION DES RISQUES OWASP
+
+Une revue du projet sous l'angle des principaux risques OWASP a été réalisée.
+Le Top 10 OWASP est utilisé comme référentiel de sensibilisation et de
+priorisation des risques, et non comme une certification formelle de
+conformité.
+
+### Mesures retenues dans le périmètre du projet
+
+- Les contrôles d'accès reposent sur l'authentification JWT et sur des
+  permissions vérifiant le propriétaire ou la qualité de contributeur selon
+  la ressource concernée.
+- Les querysets des ressources imbriquées sont filtrés par leur projet parent
+  afin de réduire le risque d'accès horizontal à une ressource d'un autre
+  projet.
+- Les auteurs et relations structurantes des ressources sont définis côté
+  serveur et exposés en lecture seule dans les serializers.
+- Les mots de passe sont validés et hachés avec les mécanismes fournis par
+  Django.
+- La durée de vie des jetons JWT est limitée et les jetons de
+  rafraîchissement font l'objet d'une rotation avec blacklist de l'ancien
+  jeton.
+- Le throttling global limite les requêtes anonymes à 30 par minute et les
+  requêtes authentifiées à 300 par minute.
+- Des limites plus restrictives sont appliquées aux opérations sensibles :
+  5 tentatives de connexion par minute et 5 inscriptions par heure.
+- La pagination globale limite à 10 le nombre de ressources retournées par
+  page.
+- Poetry et son fichier de verrouillage assurent le suivi déterministe des
+  dépendances Python.
+- Dependabot est configuré pour rechercher chaque semaine les nouvelles
+  versions des dépendances Python gérées avec Poetry.
+
+### Actions complémentaires souhaitées
+
+- Vérifier dans les paramètres GitHub l'activation du graphe de dépendances,
+  des alertes Dependabot et des mises à jour de sécurité.
+- Valider manuellement le déclenchement du throttling et le comportement de
+  rotation et de blacklist des jetons.
+- Ajouter, lorsque la stratégie de tests du projet sera mise en place, des
+  tests automatisés couvrant les permissions, les accès inter-projets,
+  l'authentification JWT et les réponses HTTP 429.
+- Vérifier les paramètres Django avec `manage.py check --deploy` avant tout
+  déploiement dans un environnement de production.
+
+### Pistes d'amélioration non implémentées
+
+Les mesures suivantes ont été identifiées lors de la revue de sécurité, mais
+ne sont pas implémentées à ce stade car elles dépassent le cadre immédiat du
+projet ou dépendent de l'environnement réel de déploiement :
+
+- séparer les paramètres de développement et de production, désactiver
+  `DEBUG` en production et configurer explicitement `ALLOWED_HOSTS` ;
+- imposer HTTPS en production et configurer les paramètres Django associés,
+  notamment la redirection HTTPS, HSTS et les cookies sécurisés ;
+- utiliser un cache partagé et une limitation de débit au niveau du proxy ou
+  de l'infrastructure pour renforcer le throttling en cas de déploiement
+  multi-processus ;
+- mettre en place une journalisation de sécurité structurée et un système
+  d'alerte pour les échecs d'authentification, refus d'autorisation, actions
+  sensibles et erreurs serveur, sans enregistrer les mots de passe, jetons ou
+  données personnelles non nécessaires ;
+- permettre la révocation explicite d'un jeton de rafraîchissement lors de la
+  déconnexion et étudier l'invalidation des jetons après un changement de mot
+  de passe ;
+- intégrer les contrôles Django, les tests et l'analyse des dépendances dans
+  une chaîne d'intégration continue ;
+- gérer explicitement les erreurs liées aux opérations concurrentes, notamment
+  lors de l'ajout simultané d'un même contributeur ;
+- versionner l'API et publier un schéma OpenAPI pour faciliter l'inventaire et
+  le suivi des endpoints exposés ;
+- définir avec le donneur d'ordre la gestion des projets dont l'auteur a été
+  anonymisé.
 
 ---
 
@@ -333,34 +425,17 @@ l'implémentation :
   - les projets, issues et commentaires conservés restent associés au compte technique anonymisé afin que chaque ressource conserve un auteur, sans révéler l'identité de l'ancien utilisateur.
 - Permissions après anonymisation :
   - une ressource associée à un auteur anonymisé reste consultable par les contributeurs autorisés ;
-  - une issue associée à un auteur anonymisé peut être modifiée ou supprimée
-    par l'auteur du projet concerné ;
-  - un commentaire associé à un auteur anonymisé peut être supprimé, mais pas
-    modifié, par l'auteur du projet concerné ;
-  - la gestion d'un projet dont l'auteur est anonymisé reste volontairement non
-    tranchée dans l'attente d'un arbitrage du client ou du donneur d'ordre ;
+  - une issue associée à un auteur anonymisé peut être modifiée ou supprimée par l'auteur du projet concerné ;
+  - un commentaire associé à un auteur anonymisé peut être supprimé, mais pas modifié, par l'auteur du projet concerné ;
+  - la gestion d'un projet dont l'auteur est anonymisé reste volontairement non tranchée dans l'attente d'un arbitrage du client ou du donneur d'ordre ;
   - aucun autre utilisateur ne devient artificiellement l'auteur de la ressource ;
   - une suppression administrative exceptionnelle reste possible en dehors des permissions métier ordinaires, notamment si un contenu libre contient encore des données personnelles.
 - Impact :
   - les ressources métier et le travail collectif sont conservés ;
-  - les issues ne deviennent pas définitivement figées et les commentaires
-    peuvent encore être supprimés lorsque leur auteur est anonymisé ou quitte
-    le projet ;
+  - les issues ne deviennent pas définitivement figées et les commentaires peuvent encore être supprimés lorsque leur auteur est anonymisé ou quitte le projet ;
   - l'interface pourra afficher un libellé tel que « Utilisateur supprimé » ;
   - le processus de suppression du profil devra orchestrer l'anonymisation, la désactivation, la suppression des appartenances Contributor et le retrait des assignations.
 - Alternative considérée : Supprimer toutes les ressources de l'utilisateur, rendre leurs auteurs facultatifs, les réattribuer à d'autres utilisateurs ou accorder des droits de modération supplémentaires.
-
-### **[2026-09-02] Décision : Authentification JWT et pagination globale**
-- Raison : Répondre aux exigences de sécurisation de l'API par JWT et de
-  pagination obligatoire des ressources.
-- Impact : L'authentification DRF repose sur `JWTAuthentication`. L'API expose
-  des routes permettant d'obtenir une paire de jetons et de rafraîchir le
-  jeton d'accès. Les listes prises en charge par le comportement standard des
-  `ModelViewSet` sont paginées par groupes de 10 ressources.
-- Paramètres retenus : Les jetons d'accès expirent après 5 minutes et les
-  jetons de rafraîchissement après 1 jour.
-- Alternative considérée : L'authentification de session de l'interface
-  navigable DRF n'est pas conservée afin que l'API utilise exclusivement JWT.
 
 ### **[2026-08-24] Décision : Découpage du domaine en deux applications Django**
 - Raison : Séparer la gestion de l'identité utilisateur du domaine métier de SoftDesk, tout en évitant un découpage excessif en une application par modèle.
@@ -409,6 +484,14 @@ l'implémentation :
 - Impact : Le champ `description` peut être vide lors de la création ou de la modification d'une issue, tandis que le titre reste obligatoire. Il s'agit d'un choix de conception du projet et non d'une exigence explicite du cahier des charges.
 - Alternative considérée : Exiger une description pour chaque issue, ce qui imposerait de fournir un contenu détaillé dès sa création.
 
+### **[2026-09-02] Décision : Authentification JWT et pagination globale**
+- Raison : Répondre aux exigences de sécurisation de l'API par JWT et de pagination obligatoire des ressources.
+- Impact : L'authentification DRF repose sur `JWTAuthentication`. L'API expose des routes permettant d'obtenir une paire de jetons et de rafraîchir le jeton d'accès. Les listes prises en charge par le comportement standard `ModelViewSet` sont paginées par groupes de 10 ressources.
+- Paramètres retenus : Les jetons d'accès expirent après 5 minutes et les jetons de rafraîchissement après 1 jour.
+- Stratégie de renouvellement : Chaque utilisation valide d'un jeton de rafraîchissement génère un nouveau jeton de rafraîchissement. L'ancien jeton est alors placé en liste noire et ne peut plus être réutilisé.
+- Limite retenue : La révocation immédiate lors d'une déconnexion ou d'un changement de mot de passe n'est pas implémentée dans le périmètre actuel.
+- Alternative considérée : L'authentification de session de l'interface navigable DRF n'est pas conservée afin que l'API utilise exclusivement JWT.
+
 ### **[2026-09-02] Décision : UUID de Comment utilisé comme clé primaire**
 - Raison : Le cahier des charges exige un identifiant unique de type UUID pour
   chaque commentaire. L'utiliser directement comme clé primaire garantit cette
@@ -437,6 +520,25 @@ l'implémentation :
 - Arbitrage nécessaire : Un échange avec le client ou le donneur d'ordre est indispensable pour définir la stratégie de transfert des ressources, notamment le choix du bénéficiaire, les conditions de son accord, le cas d'un projet sans autre contributeur et les exigences de traçabilité du transfert.
 - Options à évaluer : Transfert à un contributeur désigné, sélection d'un nouvel auteur avant anonymisation, reprise administrative ou conservation du projet sans auteur actif avec des droits limités.
 
+### **[2026-09-03] Décision : Limitation de débit des requêtes API**
+- Raison : Réduire les risques d'attaques automatisées, de tentatives répétées d'authentification et de consommation excessive des ressources de l'API.
+- Stratégie retenue :
+  - les requêtes anonymes sont limitées à 30 par minute ;
+  - les requêtes authentifiées sont limitées à 300 par minute ;
+  - les tentatives de connexion sont limitées à 5 par minute ;
+  - les inscriptions sont limitées à 5 par heure ;
+  - l'inscription est refusée à un utilisateur déjà authentifié.
+- Impact : Django REST Framework peut répondre avec le statut HTTP 429 lorsqu'une limite est dépassée. Les opérations sensibles utilisent des scopes distincts afin de ne pas dépendre uniquement de la limite globale.
+- Limite retenue : Le throttling applicatif constitue une mesure de réduction du risque et non une protection complète contre une attaque distribuée. Une protection complémentaire au niveau de l'infrastructure reste une piste d'amélioration pour un déploiement réel.
+- Alternative considérée : Appliquer uniquement les limites globales de Django REST Framework, sans limite spécifique pour la connexion et l'inscription.
+
+### **[2026-09-03] Décision : Suivi des dépendances avec Dependabot**
+- Raison : Réduire le risque lié aux composants vulnérables ou obsolètes et répondre à l'exigence du projet concernant le suivi des dépendances.
+- Stratégie retenue : Dependabot analyse chaque semaine les dépendances Python déclarées avec Poetry à la racine du dépôt et propose des mises à jour au moyen de pull requests.
+- Impact : Les mises à jour restent soumises à une validation humaine avant intégration. Le fichier `poetry.lock` conserve des versions et empreintes déterministes.
+- Point restant à vérifier : Le graphe de dépendances, les alertes Dependabot et les mises à jour de sécurité doivent être activés dans les paramètres du dépôt GitHub.
+- Alternative considérée : Effectuer uniquement une veille et des mises à jour manuelles, avec un risque plus élevé d'oubli ou de retard.
+
 ---
 
-*Dernière mise à jour : 2026-09-02*
+*Dernière mise à jour : 2026-09-03*
