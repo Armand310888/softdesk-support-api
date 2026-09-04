@@ -53,7 +53,7 @@ class ProjectViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self) -> Any:
-        return Project.objects.all()
+        return Project.objects.all().select_related('author')
 
     @transaction.atomic
     def perform_create(self, serializer: Any) -> None:
@@ -90,7 +90,7 @@ class ContributorViewSet(ProjectContextMixin, ModelViewSet):
     def get_queryset(self) -> Any:
         return Contributor.objects.filter(
             project_id=self.kwargs.get('project_pk')
-        )
+        ).select_related('user')
 
     def perform_create(self, serializer: Any) -> None:
         """Add an active, non-duplicate contributor to the project."""
@@ -150,6 +150,10 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
     def get_queryset(self) -> Any:
         return Issue.objects.filter(
             project_id=self.kwargs.get('project_pk')
+        ).select_related(
+            'project',
+            'author',
+            'assigned_to',
         )
 
     def perform_create(self, serializer: Any) -> None:
@@ -188,8 +192,11 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
 
     def get_queryset(self) -> Any:
         return Comment.objects.filter(
-            issue__project__id=self.kwargs.get('project_pk'),
+            issue__project_id=self.kwargs.get('project_pk'),
             issue_id=self.kwargs.get('issue_pk')
+        ).select_related(
+            'author',
+            'issue__project',
         )
 
     def perform_create(self, serializer: Any) -> None:
