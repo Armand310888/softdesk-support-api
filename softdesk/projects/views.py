@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -27,7 +29,8 @@ from .permissions import (
 
 
 class ProjectContextMixin:
-    def get_project(self):
+    def get_project(self) -> Project:
+        """Return the project identified by the nested route parameter."""
         return get_object_or_404(
                     Project,
                     pk=self.kwargs.get('project_pk')
@@ -39,7 +42,7 @@ class ProjectViewSet(ModelViewSet):
 
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[Any]:
         if self.action == 'create':
             permission_classes = [IsAuthenticated]
         elif self.action == 'retrieve':
@@ -49,11 +52,12 @@ class ProjectViewSet(ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         return Project.objects.all()
 
     @transaction.atomic
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: Any) -> None:
+        """Create the project and its initial contributor atomically."""
         project = serializer.save(author=self.request.user)
 
         Contributor.objects.create(
@@ -61,7 +65,12 @@ class ProjectViewSet(ModelViewSet):
             project=project,
         )
 
-    def list(self, request, *args, **kwargs):
+    def list(
+        self,
+        request: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
@@ -70,7 +79,7 @@ class ContributorViewSet(ProjectContextMixin, ModelViewSet):
 
     http_method_names = ['get', 'post', 'delete']
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[Any]:
         if self.action in ['create', 'destroy']:
             permission_classes = [IsAuthenticated, IsProjectAuthor]
         else:
@@ -78,12 +87,13 @@ class ContributorViewSet(ProjectContextMixin, ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         return Contributor.objects.filter(
             project_id=self.kwargs.get('project_pk')
         )
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: Any) -> None:
+        """Add an active, non-duplicate contributor to the project."""
         project = self.get_project()
         user = serializer.validated_data['user']
 
@@ -98,7 +108,13 @@ class ContributorViewSet(ProjectContextMixin, ModelViewSet):
         serializer.save(project=project)
 
     @transaction.atomic
-    def destroy(self, request, *args, **kwargs):
+    def destroy(
+        self,
+        request: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
+        """Remove a contributor and clear their project assignments."""
         contributor = self.get_object()
 
         project = self.get_project()
@@ -119,7 +135,7 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
 
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[Any]:
         if self.action in ['create', 'retrieve', 'list']:
             permission_classes = [IsAuthenticated, IsContributor]
         else:
@@ -131,12 +147,13 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         return Issue.objects.filter(
             project_id=self.kwargs.get('project_pk')
         )
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: Any) -> None:
+        """Create an issue for the current project and authenticated user."""
         project = self.get_project()
 
         serializer.save(
@@ -144,7 +161,7 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
             project=project
         )
 
-    def get_serializer_context(self):
+    def get_serializer_context(self) -> dict[str, Any]:
         context = super().get_serializer_context()
         context['project'] = self.get_project()
         return context
@@ -155,7 +172,7 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
 
     http_method_names = ['post', 'patch', 'get', 'delete']
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[Any]:
         if self.action in ['create', 'list', 'retrieve']:
             permission_classes = [IsAuthenticated, IsContributor]
         elif self.action == 'partial_update':
@@ -169,13 +186,14 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         return Comment.objects.filter(
             issue__project__id=self.kwargs.get('project_pk'),
             issue_id=self.kwargs.get('issue_pk')
         )
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: Any) -> None:
+        """Create a comment attached to the issue in the current project."""
         issue = get_object_or_404(
             Issue,
             pk=self.kwargs.get('issue_pk'),

@@ -88,7 +88,8 @@ class IssueSerializer(ModelSerializer):
             'author',
         ]
 
-    def validate_assigned_to(self, value):
+    def validate_assigned_to(self, value: User | None) -> User | None:
+        """Ensure an assigned user contributes to the current project."""
         if value is None:
             return value
 

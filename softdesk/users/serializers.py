@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.serializers import ModelSerializer
 
@@ -35,11 +37,13 @@ class UserSerializer(ModelSerializer):
             }
         }
 
-    def validate_password(self, value):
+    def validate_password(self, value: str) -> str:
+        """Validate the password with Django's configured validators."""
         validate_password(value, user=self.instance)
         return value
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict[str, Any]) -> User:
+        """Create a user while storing the password in hashed form."""
         password = validated_data.pop('password')
 
         user = User(**validated_data)
@@ -47,7 +51,12 @@ class UserSerializer(ModelSerializer):
         user.save()
         return user
 
-    def update(self, instance, validated_data):
+    def update(
+        self,
+        instance: User,
+        validated_data: dict[str, Any],
+    ) -> User:
+        """Update the user and hash a new password when one is provided."""
         password = validated_data.pop('password', None)
 
         instance = super().update(instance, validated_data)

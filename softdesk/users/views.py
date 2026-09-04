@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.db import transaction
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +19,7 @@ class UserViewSet(ModelViewSet):
 
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    def get_permissions(self):
+    def get_permissions(self) -> list[Any]:
         if self.action == 'create':
             permission_classes = [IsNotAuthenticated]
         else:
@@ -25,7 +27,7 @@ class UserViewSet(ModelViewSet):
 
         return [permission() for permission in permission_classes]
 
-    def get_throttles(self):
+    def get_throttles(self) -> list[Any]:
         throttles = super().get_throttles()
 
         if self.action == 'create':
@@ -33,11 +35,17 @@ class UserViewSet(ModelViewSet):
 
         return throttles
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
         return User.objects.filter(is_anonymized=False)
 
     @transaction.atomic
-    def destroy(self, request, *args, **kwargs):
+    def destroy(
+        self,
+        request: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
+        """Anonymize the account and remove its project associations."""
         user = self.get_object()
 
         Contributor.objects.filter(user=user).delete()
@@ -58,7 +66,12 @@ class UserViewSet(ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def list(self, request, *args, **kwargs):
+    def list(
+        self,
+        request: Any,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 

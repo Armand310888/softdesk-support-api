@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import BasePermission
 
@@ -5,12 +7,17 @@ from .models import Project, Contributor, Issue, Comment
 
 
 class IsAuthor(BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+        self,
+        request: Any,
+        view: Any,
+        obj: Any,
+    ) -> bool:
         return obj.author == request.user
 
 
 class IsProjectAuthor(BasePermission):
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         project = get_object_or_404(
             Project,
             pk=view.kwargs.get('project_pk'),
@@ -20,7 +27,13 @@ class IsProjectAuthor(BasePermission):
 
 
 class CanManageResource(BasePermission):
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+        self,
+        request: Any,
+        view: Any,
+        obj: Any,
+    ) -> bool:
+        """Allow the resource author or project author when needed."""
         if obj.author == request.user:
             return True
 
@@ -39,7 +52,7 @@ class CanManageResource(BasePermission):
 
 
 class IsContributor(BasePermission):
-    def has_permission(self, request, view):
+    def has_permission(self, request: Any, view: Any) -> bool:
         project_pk = view.kwargs.get('project_pk')
 
         if project_pk is None:
@@ -50,7 +63,13 @@ class IsContributor(BasePermission):
             project_id=project_pk
         ).exists()
 
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(
+        self,
+        request: Any,
+        view: Any,
+        obj: Any,
+    ) -> bool:
+        """Check whether the user contributes to the object's project."""
         if isinstance(obj, Project):
             project = obj
 
