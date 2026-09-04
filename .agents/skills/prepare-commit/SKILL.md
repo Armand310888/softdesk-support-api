@@ -1,8 +1,7 @@
 ---
-
 name: prepare-commit
 description: Analyze Git changes, propose coherent staging boundaries, and prepare professional Conventional Commit messages without modifying Git state unless explicitly approved.
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Prepare Commit
 

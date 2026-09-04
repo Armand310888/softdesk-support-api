@@ -1,8 +1,7 @@
 ---
-
 name: project-review
 description: Review a Django REST Framework project or selected changes for functional correctness, immediate technical quality, documentation, and significant design issues.
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # Project Review
 
