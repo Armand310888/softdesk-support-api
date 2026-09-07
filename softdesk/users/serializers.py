@@ -34,7 +34,13 @@ class UserSerializer(ModelSerializer):
             'age': {
                 'required': True,
                 'allow_null': False,
-            }
+            },
+            'can_be_contacted': {
+                'required': True,
+            },
+            'can_data_be_shared': {
+                'required': True,
+            },
         }
 
     def validate_password(self, value: str) -> str:

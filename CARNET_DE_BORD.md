@@ -176,6 +176,7 @@ Cette exception est décrite dans la décision du 2 septembre ; elle ne doit pas
   - Unicité du nom d'utilisateur et de l'adresse e-mail
   - Liste globale des utilisateurs désactivée ; suppression du profil réservée à son propriétaire, sans contournement automatique par le statut administrateur
   - Consentements `can_be_contacted` et `can_data_be_shared` enregistrés séparément
+  - Réponse explicite obligatoire pour chaque consentement à l'inscription (`true` ou `false`), sans obligation d'accepter ; choix modifiables indépendamment par `PATCH`
   - Consentements RGPD sans effet sur les permissions métier ni sur la création d'une association `Contributor`
   - Validation du mot de passe avec les validateurs Django et stockage sous forme hachée
   - Consultation et modification d'un profil limitées à son propriétaire
@@ -526,6 +527,18 @@ Les points suivants décrivent l'implémentation actuelle et complètent le choi
 - Les descriptions de projet et d'issue sont facultatives (`blank=True`). Le caractère facultatif de la description d'issue est déjà motivé dans la décision du 1er septembre ; celui du projet correspond également à un arbitrage de conception.
 - La gestion et le transfert des projets après anonymisation de leur auteur restent ouverts : aucun transfert ni blocage préalable de l'anonymisation
   pour ce motif n'est implémenté.
+
+---
+
+### **[2026-09-07] Décision : Choix de consentement explicites à l'inscription**
+- Raison : Recueillir une réponse explicite pour chacun des deux consentements, plutôt que déduire un refus de l'absence du champ. Il s'agit d'un choix de conception, et non d'une obligation de saisie explicitement formulée dans le cahier des charges.
+- Politique retenue : Dans le corps JSON de création du profil, `can_be_contacted` et `can_data_be_shared` doivent chacun être présents avec une valeur booléenne `true` ou `false`. Un champ absent ou une valeur `null` entraîne une erreur de validation. Répondre est obligatoire ; consentir ne l'est pas : les deux valeurs peuvent être `false`.
+- Implémentation : `UserSerializer.Meta.extra_kwargs` déclare les deux champs avec `required=True`. Les valeurs `default=False` du modèle sont conservées, mais ne dispensent pas le client de fournir les champs dans le JSON d'inscription. Cette modification du serializer ne nécessite pas de migration.
+- Modification ultérieure : Le propriétaire peut modifier ses choix par `PATCH` sur son profil. Les champs omis lors d'une modification partielle conservent leur valeur ; chaque consentement peut être modifié indépendamment.
+- Portée : La décision du 31 août sur la séparation entre consentements et permissions métier est maintenue. Aucun de ces champs ne conditionne l'ajout comme contributeur, l'accès aux projets ou la visibilité dans la liste des contributeurs. En l'absence de précision du cahier des charges sur leur portée, aucune restriction métier supplémentaire n'est déduite de ces consentements.
+- Alternatives considérées : 
+  - Conserver les champs facultatifs à l'inscription avec un refus par défaut. Cette possibilité est remplacée par l'exigence de réponses explicites.
+  - Bâtir les permissions sur la base de ces choix de consentement. En l'absence de précisions suffisantes du cahier des charges de conception, cette alternative a été écartée.
 
 ---
 
