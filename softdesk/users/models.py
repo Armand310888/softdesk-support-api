@@ -1,10 +1,13 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
-    age = models.SmallIntegerField(validators=[MinValueValidator(15)], null=True)
+    age = models.SmallIntegerField(
+        validators=[MinValueValidator(15), MaxValueValidator(120)],
+        null=True
+    )
 
     can_be_contacted = models.BooleanField(default=False)
 
