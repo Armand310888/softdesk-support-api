@@ -2,6 +2,7 @@ from typing import Any
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -65,6 +66,12 @@ class ProjectViewSet(ModelViewSet):
             project=project,
         )
 
+    @extend_schema(
+        summary='Project listing is disabled',
+        description='Projects cannot be listed. Use POST on this path to create a project.',
+        responses={405: None},
+        operation_id='projects_list_disabled'
+    )
     def list(
         self,
         request: Any,

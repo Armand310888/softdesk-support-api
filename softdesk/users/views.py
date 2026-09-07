@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db import transaction
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -38,6 +39,16 @@ class UserViewSet(ModelViewSet):
     def get_queryset(self) -> Any:
         return User.objects.filter(is_anonymized=False)
 
+    @extend_schema(
+        summary="Delete the authenticated user's profile",
+        description=(
+            "Only the profile owner can perform this operation. "
+            "The account is anonymized and deactivated. "
+            "Project memberships and issue assignments are removed. "
+            "Authored projects, issues, and comments are preserved."
+        ),
+        responses={204: None},
+    )
     @transaction.atomic
     def destroy(
         self,
@@ -66,6 +77,12 @@ class UserViewSet(ModelViewSet):
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(
+        summary='User listing is disabled',
+        description='Users cannot be listed. Use POST on this path to create a user.',
+        responses={405: None},
+        operation_id='users_lists_disabled',
+    )
     def list(
         self,
         request: Any,
