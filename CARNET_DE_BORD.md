@@ -2,7 +2,7 @@
 
 **Projet** : API RESTful de suivi des problèmes techniques (B2B)  
 **Stack** : Django REST Framework, Python 3.12.3, Poetry  
-**GitHub** : (À remplir)
+**GitHub** : https://github.com/Armand310888/softdesk-support-api
 
 ---
 
@@ -13,11 +13,7 @@
 - `docs/softdesk-conception-mise-en-oeuvre.pdf`
 - `docs/softdesk-exigences-securite-optimisation.pdf`
 
-Cette section distingue les exigences explicitement formulées dans ces
-documents des ambiguïtés et des choix de conception restant à valider. Les
-noms de champs Django, les clés, les contraintes de base de données et les
-relations techniques ne sont pas considérés comme imposés lorsqu'ils ne sont
-pas précisés par les sources.
+Cette section distingue les exigences explicitement formulées dans ces documents des ambiguïtés et des choix de conception restant à valider. Les noms de champs Django, les clés, les contraintes de base de données et les relations techniques ne sont pas considérés comme imposés lorsqu'ils ne sont pas précisés par les sources.
 
 ### 🎯 Mission du projet
 Développer une API RESTful performante et sécurisée pour **SoftDesk Support**, permettant aux entreprises (B2B) de remonter et suivre des problèmes techniques.
@@ -44,8 +40,7 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
 - Ressource spécifique liant un utilisateur à un projet
 - Un utilisateur peut contribuer à plusieurs projets
 - Un projet peut avoir plusieurs contributeurs
-- Seuls les contributeurs peuvent accéder au projet et aux ressources qui
-  le référencent
+- Seuls les contributeurs peuvent accéder au projet et aux ressources qui le référencent
 - Horodatage `created_time`
 
 #### Issue
@@ -53,15 +48,14 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
 - Appartenance à un seul projet ; un projet peut posséder plusieurs issues
 - Auteur contributeur du projet
 - Assignation facultative à un autre contributeur du même projet
-- Priorité obligatoire : LOW, MEDIUM ou HIGH
-- Type obligatoire : BUG, FEATURE ou TASK
+- Priorité obligatoirement : LOW, MEDIUM ou HIGH
+- Type obligatoirement : BUG, FEATURE ou TASK
 - Statut To Do, In Progress ou Finished ; To Do par défaut
 - Horodatage `created_time`
 
 #### Comment
 - Texte sauvegardé en tant que description
-- Appartenance à une seule issue ; une issue peut posséder plusieurs
-  commentaires
+- Appartenance à une seule issue ; une issue peut posséder plusieurs commentaires
 - Auteur contributeur du projet concerné
 - Identifiant unique de type UUID généré automatiquement
 - Horodatage `created_time`
@@ -74,17 +68,10 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
 - **Authentification** : JWT pour le back-end d'authentification DRF
 - **Autorisation** :
   - seuls les utilisateurs authentifiés accèdent aux fonctionnalités ;
-  - seuls les contributeurs accèdent à un projet, à ses issues et à ses
-    commentaires ;
-  - seul l'auteur d'un projet, d'une issue ou d'un commentaire peut le
-    modifier ou le supprimer en temps normal ;
-  - l'auteur d'un projet peut modifier ou supprimer une issue, et supprimer un
-    commentaire, lorsque l'auteur de cette ressource est anonymisé ou n'est
-    plus contributeur du projet ;
+  - seuls les contributeurs accèdent à un projet, à ses issues et à ses commentaires ;
+  - seul l'auteur d'un projet, d'une issue ou d'un commentaire peut le modifier ou le supprimer en temps normal ;
   - les autres contributeurs autorisés disposent d'un accès en lecture.
-- **Traçabilité** : les ressources hors utilisateur doivent posséder un
-  auteur, sous réserve de l'ambiguïté concernant Contributor indiquée plus
-  bas
+- **Traçabilité** : les ressources hors utilisateur doivent posséder un auteur, sous réserve de l'ambiguïté concernant Contributor indiquée plus bas
 
 #### RGPD
 - Accès et rectification du profil
@@ -94,45 +81,39 @@ Développer une API RESTful performante et sécurisée pour **SoftDesk Support**
 
 #### Green Code
 - Pagination des ressources obligatoire
-- Les sources présentent l'optimisation du code et des requêtes comme une
-  démarche à appliquer en réponse à un problème identifié, sans imposer de
-  technique supplémentaire précise
+- Les sources présentent l'optimisation du code et des requêtes comme une démarche à appliquer en réponse à un problème identifié, sans imposer de technique supplémentaire précise
 
 #### Gestion des dépendances
-- Utilisation de Pipenv ou Poetry pour suivre et mettre à jour les
-  dépendances ; Poetry est le choix retenu pour ce projet
+- Utilisation de Pipenv ou Poetry pour suivre et mettre à jour les dépendances ; Poetry est le choix retenu pour ce projet
 
 ---
 
 ### ✅ Arbitrages validés sur les ambiguïtés des sources
 
-- **Âge minimal** : le document de conception emploie « plus de 15 ans »,
-  tandis que le document de sécurité indique que l'âge légal permettant de
-  consentir seul est de 15 ans. La règle retenue est `age >= 15`.
-- **Auteur de Contributor** : le document de conception indique que toute
-  ressource hors User possède un auteur, tandis que le document de sécurité
-  cite explicitement Project, Issue et Comment, mais pas Contributor. Le
-  modèle Contributor ne possédera pas d'auteur.
-- **Priorité et type d'une issue** : le document de conception définit les
-  valeurs possibles de `priority` et `issue_type` sans préciser si ces champs
-  sont facultatifs. Ils seront obligatoires afin que chaque issue respecte le
-  modèle fonctionnel décrit.
+- **Âge minimal** : le document de conception emploie « plus de 15 ans », tandis que le document de sécurité indique que l'âge légal permettant de consentir seul est de 15 ans. La règle retenue est `age >= 15`. 
+- **Auteur de Contributor** : le document de conception indique que toute ressource hors User possède un auteur, tandis que le document de sécurité cite explicitement Project, Issue et Comment, mais pas Contributor. Le modèle Contributor ne possédera pas d'auteur.
+- **Priorité et type d'une issue** : le document de conception définit les valeurs possibles de `priority` et `issue_type` sans préciser si ces champs sont facultatifs. Ils seront obligatoires afin que chaque issue respecte le modèle fonctionnel décrit.
 
 ---
 
 ### 🏗️ Choix de conception non imposés par les deux PDF
 
-Les points suivants doivent être décidés et documentés avant ou pendant
-l'implémentation :
+Les choix suivants sont implémentés et précisés dans la progression ou le journal des décisions :
 
-- noms techniques exacts des modèles et de leurs champs ;
-- types et rôles des clés primaires ;
-- cibles des clés étrangères et comportements de suppression ;
-- traduction Django de la relation entre User, Contributor et Project ;
-- contraintes d'unicité, notamment pour un contributeur dans un projet ;
-- cible technique de l'assignation d'une issue ;
-- règles d'unicité de `username` et de l'adresse e-mail ;
-- autres choix de structure interne aux applications Django.
+- deux applications Django, `users` et `projects` ;
+- clés primaires numériques par défaut, sauf pour `Comment`, identifié par UUID ;
+- association `Contributor` unique pour chaque couple `(user, project)` ;
+- assignation facultative d'une issue à un `User`, avec vérification de son appartenance au projet ;
+- unicité du `username` et de l'adresse e-mail ;
+- conservation des auteurs lors de l'anonymisation et comportements explicites de suppression des relations ;
+- routes métier imbriquées, modifications par `PATCH` et absence de listes globales des utilisateurs et projets ;
+- descriptions de projet et d'issue facultatives ;
+- borne supérieure de validation de l'âge fixée à 120 ans.
+
+**Exception métier documentée comme choix de conception** : l'auteur d'un projet peut modifier ou supprimer une issue, et supprimer un commentaire, lorsque l'auteur de cette ressource est anonymisé ou n'est plus contributeur.
+Cette exception est décrite dans la décision du 2 septembre ; elle ne doit pas être présentée comme une exigence explicite sans confirmation dans les sources.
+
+**Arbitrages encore ouverts** : la gestion et le transfert des projets dont l'auteur est anonymisé restent à définir avec le donneur d'ordre. La raison initiale du caractère facultatif de la description d'un projet reste à expliciter.
 
 ---
 
@@ -182,193 +163,145 @@ l'implémentation :
       - project-review : skill spécialisé pour les revues techniques
       - prepare-commit : skill spécialisé pour la préparation des commits
       - CARNET_DE_BORD.md : référence opérationnelle pour les exigences, la progression et les décisions du projet
-  - ✅ Structure des applications Django : deux applications `users` et
-    `projects`
+  - ✅ Structure des applications Django : deux applications `users` et `projects`
 - **Blocages/Notes** :
-  - Le projet a d'abord été configuré pour permettre l'utilisation de
-  3 agents IA via Copilot. Pour se conformer aux recommandations d'Open
-  classrooms, une migration a été effectuée vers Codex.
+  - Le projet a d'abord été configuré pour permettre l'utilisation de 3 agents IA via Copilot. Pour se conformer aux recommandations d'Openclassrooms, une migration a été effectuée vers Codex.
 
 ### Étape 2 : Définir les utilisateurs
 - **Statut** : ✅ Terminée
 - **Décisions prises** :
   - Modèle utilisateur personnalisé basé sur `AbstractUser`
-  - Inscription autorisée à partir de 15 ans inclus
-  - Consentements `can_be_contacted` et `can_data_be_shared` enregistrés
-    séparément
-  - Consentements RGPD sans effet sur les permissions métier ni sur la
-    création d'une association `Contributor`
-  - Validation du mot de passe avec les validateurs Django et stockage sous
-    forme hachée
+  - Âge obligatoire à l'inscription, validé entre 15 et 120 ans inclus
+  - Âge non nul dans les données acceptées par le serializer, mais nullable en base pour l'anonymisation
+  - Unicité du nom d'utilisateur et de l'adresse e-mail
+  - Liste globale des utilisateurs désactivée ; suppression du profil réservée à son propriétaire, sans contournement automatique par le statut administrateur
+  - Consentements `can_be_contacted` et `can_data_be_shared` enregistrés séparément
+  - Consentements RGPD sans effet sur les permissions métier ni sur la création d'une association `Contributor`
+  - Validation du mot de passe avec les validateurs Django et stockage sous forme hachée
   - Consultation et modification d'un profil limitées à son propriétaire
   - Suppression du profil réalisée par anonymisation et désactivation du compte
-  - Suppression des associations `Contributor` et retrait des assignations aux
-    issues dans la même transaction que l'anonymisation
+  - Suppression des associations `Contributor` et retrait des assignations aux issues dans la même transaction que l'anonymisation
 - **Blocages/Notes** :
   - Parcours de l'API utilisateur validés manuellement avec Postman
-  - Stratégie de gestion et de transfert des projets dont l'auteur est
-    anonymisé à définir avec le client ou le donneur d'ordre
+  - Stratégie de gestion et de transfert des projets dont l'auteur est anonymisé à définir avec le client ou le donneur d'ordre
 
 ### Étape 3 : Définir les projets et contributeurs
-- **Statut** : ⏳ En cours
+- **Statut** : ✅ Terminée
 - **Décisions prises** :
   - Types de projet représentés avec `models.TextChoices`
   - Auteur du projet associé au modèle utilisateur configuré
   - Auteur défini côté serveur lors de la création d'un projet
   - Auteur et date de création exposés en lecture seule par le serializer
-  - Modèle `Contributor` utilisé comme association entre un utilisateur et un
-    projet
-  - Unicité d'une association `Contributor` garantie pour chaque couple
-    `(user, project)`
-  - Créateur d'un projet automatiquement enregistré comme contributeur dans
-    la même transaction
+  - Modèle `Contributor` utilisé comme association entre un utilisateur et un projet
+  - Unicité d'une association `Contributor` garantie pour chaque couple `(user, project)`
+  - Créateur d'un projet automatiquement enregistré comme contributeur dans la même transaction
   - Ajout d'un contributeur à partir de son `username` exact
   - Ajout et suppression des contributeurs réservés à l'auteur du projet
   - Suppression de l'auteur de la liste des contributeurs interdite
-  - Consultation d'un projet et de ses contributeurs réservée aux
-    contributeurs du projet
-  - Consentements RGPD sans effet sur la création d'un `Contributor` ou sur
-    les permissions métier
+  - Consultation d'un projet et de ses contributeurs réservée aux contributeurs du projet
+  - Consentements RGPD sans effet sur la création d'un `Contributor` ou sur les permissions métier
 - **Blocages/Notes** :
   - Modèle, migration, serializer, routes, vue et permissions de
     `Contributor` implémentés
-  - Parcours de l'API des projets et contributeurs à valider manuellement avec Postman
+  - Essais manuels réalisés via Swagger UI ; leur portée est précisée dans le bilan de validation ci-dessous
 
 ### Étape 4 : Définir les problèmes et commentaires
-- **Statut** : ⏳ En cours
+- **Statut** : ✅ Terminée
 - **Décisions prises** :
   - Les champs `priority` et `issue_type` d'une issue sont obligatoires
   - Le champ `description` d'une issue est facultatif
   - L'UUID d'un commentaire est utilisé comme clé primaire
 - **Blocages/Notes** :
-  - Première version du modèle, du serializer, des routes, de la vue et des permissions d'`Issue` implémentée
-  - Migration d'`Issue` effectuée.
-  - Modèle, serializer, routes, vue et permissions de `Comment` implémentés
-  - Migration `0004_comment` créée et appliquée
-  - Parcours de l'API des issues et commentaires à valider manuellement avec
-    Postman
+  - Modèle, migration, serializer, routes, vue et permissions de `Issue` et `Comment` implémentés
+  - Essais manuels réalisés via Swagger UI ; leur portée est précisée dans le bilan de validation ci-dessous
 
 ### Étape 5 : Mettre en place les permissions
-- **Statut** : ⏳ En cours
+- **Statut** : ✅ Terminée
 - **Décisions prises** :
   - Authentification de l'API assurée par JWT avec Simple JWT
   - Durée de validité d'un jeton d'accès fixée à 5 minutes
   - Durée de validité d'un jeton de rafraîchissement fixée à 1 jour
   - Rotation des jetons de rafraîchissement activée
-  - Mise en liste noire de l'ancien jeton de rafraîchissement après sa
-    rotation
-  - Limitation globale du nombre de requêtes anonymes et authentifiées avec
-    le système de throttling de Django REST Framework
+  - Mise en liste noire de l'ancien jeton de rafraîchissement après sa rotation
+  - Limitation globale du nombre de requêtes anonymes et authentifiées avec le système de throttling de Django REST Framework
   - Limitation spécifique des tentatives de connexion à 5 par minute
   - Limitation spécifique des inscriptions à 5 par heure
-  - Inscription réservée aux utilisateurs non authentifiés afin d'éviter
-    qu'un compte connecté puisse créer une quantité illimitée de comptes
+  - Inscription réservée aux utilisateurs non authentifiés afin d'éviter qu'un compte connecté puisse créer une quantité illimitée de comptes
   - Accès aux ressources d'un projet réservé à ses contributeurs
   - Modification et suppression d'une ressource réservées à son auteur
-  - Modification et suppression d'une issue par l'auteur du projet autorisées
-    lorsque l'auteur de l'issue est anonymisé ou n'est plus contributeur
-  - Suppression d'un commentaire par l'auteur du projet autorisée lorsque
-    l'auteur du commentaire est anonymisé ou n'est plus contributeur
+  - Modification et suppression d'une issue par l'auteur du projet autorisées lorsque l'auteur de l'issue est anonymisé ou n'est plus contributeur
+  - Suppression d'un commentaire par l'auteur du projet autorisée lorsque l'auteur du commentaire est anonymisé ou n'est plus contributeur
   - Gestion des contributeurs réservée à l'auteur du projet
 - **Blocages/Notes** :
-  - Permissions métier de User, Project, Contributor, Issue et Comment
-    implémentées progressivement avec les ressources correspondantes
+  - Permissions métier de User, Project, Contributor, Issue et Comment implémentées progressivement avec les ressources correspondantes
   - Routes d'obtention et de rafraîchissement des jetons JWT configurées
   - Application de blacklist de Simple JWT installée et migrations appliquées
-  - Rotation, blacklist et throttling à valider par des parcours fonctionnels
-    avec Postman
-  - La stratégie JWT actuelle ne prévoit pas de révocation immédiate des
-    jetons lors d'une déconnexion ou d'un changement de mot de passe
-  - Des tests automatisés de sécurité pourront être ajoutés ultérieurement
-    pour prévenir les régressions sur l'authentification, le throttling et les
-    permissions
+  - La stratégie JWT actuelle ne prévoit pas de révocation immédiate des jetons lors d'une déconnexion ou d'un changement de mot de passe
+  - Des tests automatisés de sécurité pourront être ajoutés ultérieurement pour prévenir les régressions sur l'authentification, le throttling et les permissions
 
 ### Étape 6 : Green Code et optimisation
-- **Statut** : ⏳ En cours
+- **Statut** : ✅ Terminée
 - **Décisions prises** :
   - Pagination globale des listes avec `PageNumberPagination`
   - Taille de page fixée à 10 ressources
 - **Blocages/Notes** :
-  - Pagination configurée pour les endpoints de liste qui utilisent le
-    comportement standard des `ModelViewSet`
-  - Comportement de la pagination à valider manuellement avec Postman
-  - Optimisation des requêtes restant à étudier
+  - Pagination configurée pour les endpoints de liste qui utilisent le comportement standard des `ModelViewSet`
+  - Validation détaillée du comportement de pagination non consignée
+  - Comparaisons de clés étrangères par identifiant dans les permissions
+  - Chargements ciblés avec `select_related` pour `Contributor.user`, `Issue.assigned_to` et `Comment.issue` ; retrait des jointures inutiles
+  - Aucun serializer imbriqué ni `prefetch_related` ajouté en l'absence de besoin identifié pour les représentations actuelles
+  - Aucun benchmark chiffré ni gain énergétique mesuré
+
+---
+
+## 🧪 Bilan de validation et documentation de l'API
+
+- Des essais manuels ont été réalisés via Swagger UI, portant sur l'intégralité des endpoints. 
+- Les cas limites ont été testés aléatoirement, et non exhaustivement. Exemples: création d'un compte utilisateur en étant déjà authentifié, suppression d'un compte utilisateur qui n'est pas le sien, requêtes après expiration du token d'accès, création de ressources avec données manquantes ou erronnées.
+
+- Le schéma OpenAPI a été généré sans erreur ni avertissement après attribution d'identifiants explicites aux opérations de liste désactivées.
+- Les fichiers de tests automatisés restent des squelettes. Les vérifications de rotation JWT, blacklist et throttling restent à confirmer.
+- La documentation détaillée des erreurs et permissions n'est pas exhaustive.
 
 ---
 
 ## 🔒 DÉMARCHE DE RÉDUCTION DES RISQUES OWASP
 
 Une revue du projet sous l'angle des principaux risques OWASP a été réalisée.
-Le Top 10 OWASP est utilisé comme référentiel de sensibilisation et de
-priorisation des risques, et non comme une certification formelle de
-conformité.
+Le Top 10 OWASP est utilisé comme référentiel de sensibilisation et de priorisation des risques, et non comme une certification formelle de conformité.
 
 ### Mesures retenues dans le périmètre du projet
 
-- Les contrôles d'accès reposent sur l'authentification JWT et sur des
-  permissions vérifiant le propriétaire ou la qualité de contributeur selon
-  la ressource concernée.
-- Les querysets des ressources imbriquées sont filtrés par leur projet parent
-  afin de réduire le risque d'accès horizontal à une ressource d'un autre
-  projet.
-- Les auteurs et relations structurantes des ressources sont définis côté
-  serveur et exposés en lecture seule dans les serializers.
-- Les mots de passe sont validés et hachés avec les mécanismes fournis par
-  Django.
+- Les contrôles d'accès reposent sur l'authentification JWT et sur des permissions vérifiant le propriétaire ou la qualité de contributeur selon la ressource concernée.
+- Les querysets des ressources imbriquées sont filtrés par leur projet parent afin de réduire le risque d'accès horizontal à une ressource d'un autre projet.
+- Les auteurs et relations structurantes des ressources sont définis côté serveur et exposés en lecture seule dans les serializers.
+- Les mots de passe sont validés et hachés avec les mécanismes fournis par Django.
 - La durée de vie des jetons JWT est limitée et les jetons de
-  rafraîchissement font l'objet d'une rotation avec blacklist de l'ancien
-  jeton.
-- Le throttling global limite les requêtes anonymes à 30 par minute et les
-  requêtes authentifiées à 300 par minute.
-- Des limites plus restrictives sont appliquées aux opérations sensibles :
-  5 tentatives de connexion par minute et 5 inscriptions par heure.
-- La pagination globale limite à 10 le nombre de ressources retournées par
-  page.
-- Poetry et son fichier de verrouillage assurent le suivi déterministe des
-  dépendances Python.
-- Dependabot est configuré pour rechercher chaque semaine les nouvelles
-  versions des dépendances Python gérées avec Poetry.
+  rafraîchissement font l'objet d'une rotation avec blacklist de l'ancien jeton.
+- Le throttling global limite les requêtes anonymes à 30 par minute et les requêtes authentifiées à 300 par minute.
+- Des limites plus restrictives sont appliquées aux opérations sensibles : 5 tentatives de connexion par minute et 5 inscriptions par heure.
+- La pagination globale limite à 10 le nombre de ressources retournées par page.
+- Le schéma OpenAPI et Swagger UI fournissent un inventaire généré des opérations exposées, avec des annotations pour les comportements particuliers.
+- Poetry et son fichier de verrouillage assurent le suivi déterministe des dépendances Python.
+- Dependabot est configuré pour rechercher chaque semaine les nouvelles versions des dépendances Python gérées avec Poetry.
 
 ### Actions complémentaires souhaitées
 
-- Vérifier dans les paramètres GitHub l'activation du graphe de dépendances,
-  des alertes Dependabot et des mises à jour de sécurité.
-- Valider manuellement le déclenchement du throttling et le comportement de
-  rotation et de blacklist des jetons.
-- Ajouter, lorsque la stratégie de tests du projet sera mise en place, des
-  tests automatisés couvrant les permissions, les accès inter-projets,
-  l'authentification JWT et les réponses HTTP 429.
-- Vérifier les paramètres Django avec `manage.py check --deploy` avant tout
-  déploiement dans un environnement de production.
+- Valider manuellement le déclenchement du throttling et le comportement de rotation et de blacklist des jetons.
+- Ajouter, lorsque la stratégie de tests du projet sera mise en place, des tests automatisés couvrant les permissions, les accès inter-projets, l'authentification JWT et les réponses HTTP 429.
+- Vérifier les paramètres Django avec `manage.py check --deploy` avant tout déploiement dans un environnement de production.
 
 ### Pistes d'amélioration non implémentées
 
-Les mesures suivantes ont été identifiées lors de la revue de sécurité, mais
-ne sont pas implémentées à ce stade car elles dépassent le cadre immédiat du
-projet ou dépendent de l'environnement réel de déploiement :
+Les mesures suivantes ont été identifiées lors de la revue de sécurité, mais ne sont pas implémentées à ce stade car elles dépassent le cadre immédiat du projet ou dépendent de l'environnement réel de déploiement :
 
-- séparer les paramètres de développement et de production, désactiver
-  `DEBUG` en production et configurer explicitement `ALLOWED_HOSTS` ;
-- imposer HTTPS en production et configurer les paramètres Django associés,
-  notamment la redirection HTTPS, HSTS et les cookies sécurisés ;
-- utiliser un cache partagé et une limitation de débit au niveau du proxy ou
-  de l'infrastructure pour renforcer le throttling en cas de déploiement
-  multi-processus ;
-- mettre en place une journalisation de sécurité structurée et un système
-  d'alerte pour les échecs d'authentification, refus d'autorisation, actions
-  sensibles et erreurs serveur, sans enregistrer les mots de passe, jetons ou
-  données personnelles non nécessaires ;
-- permettre la révocation explicite d'un jeton de rafraîchissement lors de la
-  déconnexion et étudier l'invalidation des jetons après un changement de mot
-  de passe ;
-- intégrer les contrôles Django, les tests et l'analyse des dépendances dans
-  une chaîne d'intégration continue ;
-- gérer explicitement les erreurs liées aux opérations concurrentes, notamment
-  lors de l'ajout simultané d'un même contributeur ;
-- versionner l'API et publier un schéma OpenAPI pour faciliter l'inventaire et
-  le suivi des endpoints exposés ;
-- définir avec le donneur d'ordre la gestion des projets dont l'auteur a été
-  anonymisé.
+- séparer les paramètres de développement et de production, désactiver `DEBUG` en production et configurer explicitement `ALLOWED_HOSTS` ;
+- mettre en place une journalisation de sécurité structurée et un système d'alerte pour les échecs d'authentification, refus d'autorisation, actions sensibles et erreurs serveur, sans enregistrer les mots de passe, jetons ou données personnelles non nécessaires ;
+- permettre la révocation explicite d'un jeton de rafraîchissement lors de la déconnexion et étudier l'invalidation des jetons après un changement de mot de passe ;
+- intégrer les contrôles Django, les tests et l'analyse des dépendances dans une chaîne d'intégration continue ;
+- gérer explicitement les erreurs liées aux opérations concurrentes, notamment lors de l'ajout simultané d'un même contributeur ;
+- définir une stratégie de versionnement de l'API ; la valeur `VERSION` du schéma OpenAPI est une métadonnée documentaire, pas un versionnement des routes ;
+- définir avec le donneur d'ordre la gestion des projets dont l'auteur a été anonymisé.
 
 ---
 
@@ -385,6 +318,9 @@ projet ou dépendent de l'environnement réel de déploiement :
 ```
 
 ### **[2026-08-18] Décision : Mise en place d’une architecture IA en 3 agents**
+
+**Note historique** : cette organisation a depuis été remplacée par le rôle de mentor par défaut et les workflows spécialisés `project-review` et `prepare-commit`, décrits dans `AGENTS.md`. Les paragraphes suivants retracent l'organisation initiale, et ne remplacent pas les instructions actuelles.
+
 - Raison : Séparer les responsabilités pour guider l’apprentissage, sécuriser la qualité technique et organiser le travail Git, sans perdre la maîtrise de la décision humaine.
 - Impact : Le workflow est désormais structuré en trois rôles distincts : un mentor par défaut, un agent de revue technique et un agent de préparation de commits.
 - Alternative considérée : Un seul agent généraliste, mais il serait plus difficile de maintenir une pédagogie claire, des priorités de revue cohérentes et un bon contrôle Git.
@@ -493,17 +429,9 @@ projet ou dépendent de l'environnement réel de déploiement :
 - Alternative considérée : L'authentification de session de l'interface navigable DRF n'est pas conservée afin que l'API utilise exclusivement JWT.
 
 ### **[2026-09-02] Décision : UUID de Comment utilisé comme clé primaire**
-- Raison : Le cahier des charges exige un identifiant unique de type UUID pour
-  chaque commentaire. L'utiliser directement comme clé primaire garantit cette
-  unicité sans conserver en parallèle un identifiant numérique interne qui ne
-  serait pas utile à l'API.
-- Impact : Chaque commentaire est identifié dans les URLs et les relations par
-  un UUID généré automatiquement et non modifiable. Les routes de détail
-  utilisent donc un convertisseur UUID.
-- Alternative considérée : Conserver la clé primaire numérique créée par
-  Django et ajouter un champ UUID distinct avec une contrainte d'unicité, ce
-  qui introduirait deux identifiants pour la même ressource sans besoin métier
-  identifié.
+- Raison : Le cahier des charges exige un identifiant unique de type UUID pour chaque commentaire. L'utiliser directement comme clé primaire garantit cette unicité sans conserver en parallèle un identifiant numérique interne qui ne serait pas utile à l'API.
+- Impact : Chaque commentaire est identifié dans les URLs et les relations par un UUID généré automatiquement et non modifiable. Les routes de détail utilisent donc un convertisseur UUID.
+- Alternative considérée : Conserver la clé primaire numérique créée par Django et ajouter un champ UUID distinct avec une contrainte d'unicité, ce qui introduirait deux identifiants pour la même ressource sans besoin métier identifié.
 
 ### **[2026-09-02] Décision : Gestion des issues et commentaires orphelins par l'auteur du projet**
 - Raison : Une issue ou un commentaire ne doit pas devenir impossible à gérer lorsque son auteur est anonymisé ou n'est plus contributeur du projet. En tant que responsable du projet, son auteur constitue le niveau d'autorité approprié pour assurer la continuité de gestion de ces ressources.
@@ -512,11 +440,9 @@ projet ou dépendent de l'environnement réel de déploiement :
 - Alternative considérée : Laisser définitivement figées les issues et les commentaires dont l'auteur n'est plus en mesure d'exercer ses droits, avec une éventuelle intervention administrative hors de l'API métier.
 
 ### **[2026-09-02] Décision en attente : Projets dont l'auteur est anonymisé**
-- Constat : Lors de la suppression d'un profil, le compte de l'utilisateur est anonymisé et désactivé, ses associations `Contributor` sont supprimées, mais
-  les projets dont il est l'auteur sont conservés et restent liés à ce compte technique afin de préserver leur traçabilité.
+- Constat : Lors de la suppression d'un profil, le compte de l'utilisateur est anonymisé et désactivé, ses associations `Contributor` sont supprimées, mais les projets dont il est l'auteur sont conservés et restent liés à ce compte technique afin de préserver leur traçabilité.
 - Ambiguïté : Le cahier des charges ne précise pas qui doit reprendre la responsabilité de ces projets, comment choisir un éventuel nouvel auteur, ni si un transfert doit être automatique, soumis à acceptation ou réalisé par un administrateur.
-- Décision actuelle : Aucun transfert d'auteur ni droit de reprise supplémentaire n'est implémenté tant que ces règles métier ne sont pas
-  validées. La question reste volontairement ouverte plutôt que de déduire une politique d'attribution non demandée par les sources.
+- Décision actuelle : Aucun transfert d'auteur ni droit de reprise supplémentaire n'est implémenté tant que ces règles métier ne sont pas validées. La question reste volontairement ouverte plutôt que de déduire une politique d'attribution non demandée par les sources.
 - Arbitrage nécessaire : Un échange avec le client ou le donneur d'ordre est indispensable pour définir la stratégie de transfert des ressources, notamment le choix du bénéficiaire, les conditions de son accord, le cas d'un projet sans autre contributeur et les exigences de traçabilité du transfert.
 - Options à évaluer : Transfert à un contributeur désigné, sélection d'un nouvel auteur avant anonymisation, reprise administrative ou conservation du projet sans auteur actif avec des droits limités.
 
@@ -539,6 +465,68 @@ projet ou dépendent de l'environnement réel de déploiement :
 - Point restant à vérifier : Le graphe de dépendances, les alertes Dependabot et les mises à jour de sécurité doivent être activés dans les paramètres du dépôt GitHub.
 - Alternative considérée : Effectuer uniquement une veille et des mises à jour manuelles, avec un risque plus élevé d'oubli ou de retard.
 
+### **[2026-09-07] Décision : Inventaire des opérations avec drf-spectacular**
+- Raison : Faciliter l'inventaire des endpoints, la maintenance et les essais manuels à partir d'une description générée depuis le code.
+- Implémentation :
+  - `drf-spectacular` et ses dépendances sont suivis avec Poetry ;
+  - `AutoSchema` est configuré dans `REST_FRAMEWORK` ;
+  - `/api/schema/` expose le document OpenAPI ;
+  - `/api/docs/` affiche Swagger UI, qui lit ce document et permet des essais avec un jeton JWT ;
+  - les listes désactivées des utilisateurs et projets restent documentées avec une réponse `405` sans corps lorsque leur méthode est atteinte, après les contrôles d'accès ; leurs `operation_id` sont définis explicitement ;
+  - la suppression du profil décrit l'anonymisation, la désactivation et la conservation des ressources, avec une réponse de réussite `204` sans corps.
+- Validation : Depuis la racine du projet, la commande suivante génère et contrôle le schéma :
+
+  ```bash
+  poetry run python softdesk/manage.py spectacular \
+      --file /tmp/softdesk-schema.yaml --validate --fail-on-warn
+  ```
+
+- Limites : Cette validation contrôle le document OpenAPI, pas l'exécution des règles métier. Le schéma ne décrit pas exhaustivement toutes les erreurs et permissions. Sa version documentaire `1.0.0` ne versionne pas les routes.
+- Alternative considérée : Masquer les opérations de liste désactivées ; leur maintien visible a été retenu pour l'inventaire, puisqu'elles restent routées.
+
+### **[2026-09-07] Décision : Optimisation ciblée des chargements ORM**
+- Raison : Éviter le chargement d'objets liés lorsque seuls leurs identifiants sont nécessaires et prévenir les requêtes répétées lors de la sérialisation.
+- Implémentation :
+  - les permissions utilisent `author_id`, `project_id` et l'identifiant de l'utilisateur connecté lorsque ces valeurs suffisent ;
+  - `Contributor.user` est préchargé pour exposer le nom d'utilisateur ;
+  - `Issue.assigned_to` est préchargé pour exposer le nom de l'utilisateur assigné ;
+  - `Comment.issue` est préchargé pour accéder à l'identifiant du projet dans les permissions objet ;
+  - les chargements des auteurs et projets devenus inutiles ont été retirés.
+- Représentation retenue : Les réponses n'embarquent pas systématiquement les collections liées. Aucun serializer imbriqué ni `prefetch_related` n'a été ajouté sans besoin identifié dans les réponses actuelles.
+- Limites : Aucun benchmark chiffré ni gain énergétique n'a été mesuré. Les chargements restent à adapter si les serializers ou permissions évoluent.
+- Alternative considérée : Imbriquer les issues dans les projets ou les commentaires dans les issues ; ce besoin n'a pas été retenu pour l'API actuelle.
+
+### **[2026-09-07] Décision : Borne supérieure de validation de l'âge**
+- Choix retenu : Ajouter `MaxValueValidator(120)` au minimum existant de 15 ans. La borne supérieure est un choix d'implémentation, pas une exigence officielle
+  identifiée. Sa justification initiale n'a pas été consignée.
+- Impact : L'âge est obligatoire à la création et doit être compris entre 15 et 120 ans inclus. Lors d'un `PATCH`, il peut être omis ; s'il est fourni, il doit
+  respecter ces limites et ne peut pas être nul.
+- Anonymisation : Le modèle conserve `null=True` pour permettre l'effacement de l'âge lors de la suppression du profil ; le serializer refuse les valeurs nulles fournies par le client.
+- Migration : `users/0004_alter_user_age` enregistre l'ajout du validateur.
+
+### **[2026-09-07] État de conception consigné : Routes et représentations**
+
+Cette entrée décrit les choix déjà présents dans le code ; sa date correspond à leur documentation, sans présumer de leur date initiale de décision.
+
+- Les utilisateurs et projets sont exposés avec un routeur DRF. Les contributeurs et issues sont accessibles sous leur projet ; les commentaires sous leur issue et leur projet.
+- Les identifiants parents de l'URL déterminent le rattachement à la création et le filtrage des ressources. Les relations structurantes sont définies côté serveur et exposées en lecture seule.
+- Les modifications utilisent `PATCH` ; `PUT` n'est pas exposé. Les contributeurs disposent d'opérations de liste, d'ajout et de suppression.
+- Les listes globales des utilisateurs et projets sont désactivées. Le profil est consultable, modifiable et supprimable uniquement par son propriétaire ; le statut administrateur ne contourne pas automatiquement `IsSelf`.
+- Les auteurs et relations structurantes sont généralement représentés par leurs identifiants. `ContributorSerializer` expose le `username` de l'utilisateur ; `IssueSerializer` utilise aussi le `username` pour l'assignation.
+
+### **[2026-09-07] État de conception consigné : Relations et suppressions**
+
+Les points suivants décrivent l'implémentation actuelle et complètent le choix de conservation déjà documentés pour l'anonymisation.
+
+- `username` et l'adresse e-mail sont uniques. `Contributor` est une association explicite entre un utilisateur et un projet, unique pour ce couple.
+- `Issue.assigned_to` référence directement `User`, et non `Contributor`. L'assignation est facultative. Le serializer recherche un compte actif et non anonymisé et vérifie son appartenance au projet.
+- Le retrait d'un contributeur supprime ses assignations dans ce projet dans la même transaction. L'auteur ne peut pas être retiré par cette opération.
+- La suppression physique d'un projet entraîne celle de ses contributeurs et issues ; la suppression d'une issue entraîne celle de ses commentaires (`CASCADE`).
+- Les clés étrangères d'auteur et `Contributor.user` utilisent `PROTECT` pour les suppressions physiques. `Issue.assigned_to` utilise `SET_NULL`. L'anonymisation conserve la ligne utilisateur et n'est donc pas bloquée par la présence de ressources dont il est l'auteur.
+- Les descriptions de projet et d'issue sont facultatives (`blank=True`). Le caractère facultatif de la description d'issue est déjà motivé dans la décision du 1er septembre ; celui du projet correspond également à un arbitrage de conception.
+- La gestion et le transfert des projets après anonymisation de leur auteur restent ouverts : aucun transfert ni blocage préalable de l'anonymisation
+  pour ce motif n'est implémenté.
+
 ---
 
-*Dernière mise à jour : 2026-09-03*
+*Dernière mise à jour : 2026-09-07*
