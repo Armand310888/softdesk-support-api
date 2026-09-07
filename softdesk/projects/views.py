@@ -53,7 +53,7 @@ class ProjectViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self) -> Any:
-        return Project.objects.all().select_related('author')
+        return Project.objects.all()
 
     @transaction.atomic
     def perform_create(self, serializer: Any) -> None:
@@ -119,7 +119,7 @@ class ContributorViewSet(ProjectContextMixin, ModelViewSet):
 
         project = self.get_project()
 
-        if contributor.user == project.author:
+        if contributor.user_id == project.author_id:
             raise PermissionDenied('This action is forbidden.')
 
         Issue.objects.filter(
@@ -151,8 +151,6 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
         return Issue.objects.filter(
             project_id=self.kwargs.get('project_pk')
         ).select_related(
-            'project',
-            'author',
             'assigned_to',
         )
 
@@ -195,8 +193,7 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
             issue__project_id=self.kwargs.get('project_pk'),
             issue_id=self.kwargs.get('issue_pk')
         ).select_related(
-            'author',
-            'issue__project',
+            'issue'
         )
 
     def perform_create(self, serializer: Any) -> None:

@@ -13,7 +13,7 @@ class IsAuthor(BasePermission):
         view: Any,
         obj: Any,
     ) -> bool:
-        return obj.author == request.user
+        return obj.author_id == request.user.id
 
 
 class IsProjectAuthor(BasePermission):
@@ -23,7 +23,7 @@ class IsProjectAuthor(BasePermission):
             pk=view.kwargs.get('project_pk'),
         )
 
-        return request.user == project.author
+        return request.user.id == project.author_id
 
 
 class CanManageResource(BasePermission):
@@ -34,7 +34,7 @@ class CanManageResource(BasePermission):
         obj: Any,
     ) -> bool:
         """Allow the resource author or project author when needed."""
-        if obj.author == request.user:
+        if obj.author_id == request.user.id:
             return True
 
         project = get_object_or_404(
@@ -43,10 +43,10 @@ class CanManageResource(BasePermission):
         )
 
         return (
-            request.user == project.author
+            request.user.id == project.author_id
             and not Contributor.objects.filter(
-                user=obj.author,
-                project=project
+                user_id=obj.author_id,
+                project_id=project.id
             ).exists()
         )
 
@@ -59,7 +59,7 @@ class IsContributor(BasePermission):
             return True
 
         return Contributor.objects.filter(
-            user=request.user,
+            user_id=request.user.id,
             project_id=project_pk
         ).exists()
 
@@ -71,15 +71,15 @@ class IsContributor(BasePermission):
     ) -> bool:
         """Check whether the user contributes to the object's project."""
         if isinstance(obj, Project):
-            project = obj
+            project_id = obj.id
 
         elif isinstance(obj, Issue):
-            project = obj.project
+            project_id = obj.project_id
 
         elif isinstance(obj, Comment):
-            project = obj.issue.project
+            project_id = obj.issue.project_id
 
         return Contributor.objects.filter(
-            user=request.user,
-            project=project,
+            user_id=request.user.id,
+            project_id=project_id,
         ).exists()
