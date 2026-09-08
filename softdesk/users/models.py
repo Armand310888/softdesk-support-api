@@ -15,7 +15,10 @@ class User(AbstractUser):
 
     created_time = models.DateTimeField(auto_now_add=True)
 
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        null=True
+    )
 
     is_anonymized = models.BooleanField(default=False)
 

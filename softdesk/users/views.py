@@ -63,7 +63,7 @@ class UserViewSet(ModelViewSet):
         Issue.objects.filter(assigned_to=user).update(assigned_to=None)
 
         user.username = f'User {user.id} deleted'
-        user.email = f'user.{user.id}@example.com'
+        user.email = None
         user.first_name = ''
         user.last_name = ''
         user.age = None
