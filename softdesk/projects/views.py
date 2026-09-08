@@ -37,6 +37,13 @@ class ProjectContextMixin:
                     pk=self.kwargs.get('project_pk')
                 )
 
+    def get_issue(self) -> Issue:
+        return get_object_or_404(
+            Issue,
+            pk=self.kwargs.get('issue_pk'),
+            project_id=self.kwargs.get('project_pk'),
+    )
+
 
 class ProjectViewSet(ModelViewSet):
     serializer_class = ProjectSerializer
@@ -155,8 +162,10 @@ class IssueViewSet(ProjectContextMixin, ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self) -> Any:
+        project = self.get_project()
+
         return Issue.objects.filter(
-            project_id=self.kwargs.get('project_pk')
+            project=project
         ).select_related(
             'assigned_to',
         )
@@ -196,20 +205,14 @@ class CommentViewSet(ProjectContextMixin, ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self) -> Any:
-        return Comment.objects.filter(
-            issue__project_id=self.kwargs.get('project_pk'),
-            issue_id=self.kwargs.get('issue_pk')
-        ).select_related(
-            'issue'
-        )
+
+        issue = self.get_issue()
+
+        return Comment.objects.filter(issue=issue).select_related('issue')
 
     def perform_create(self, serializer: Any) -> None:
         """Create a comment attached to the issue in the current project."""
-        issue = get_object_or_404(
-            Issue,
-            pk=self.kwargs.get('issue_pk'),
-            project_id=self.kwargs.get('project_pk')
-        )
+        issue = self.get_issue()
 
         serializer.save(
             author=self.request.user,
