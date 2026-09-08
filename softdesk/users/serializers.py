@@ -1,7 +1,14 @@
+from copy import copy
 from typing import Any
 
 from django.contrib.auth.password_validation import validate_password
-from rest_framework.serializers import ModelSerializer
+from django.core.exceptions import (
+    ValidationError as DjangoValidationError
+)
+from rest_framework.serializers import (
+    ModelSerializer,
+    ValidationError as DRFValidationError
+)
 
 from users.models import User
 
@@ -47,10 +54,32 @@ class UserSerializer(ModelSerializer):
             }
         }
 
-    def validate_password(self, value: str) -> str:
-        """Validate the password with Django's configured validators."""
-        validate_password(value, user=self.instance)
-        return value
+    def validate(self, data):
+        password = data.get('password')
+
+        if password is None:
+            return data
+
+        if self.instance is None:
+            user = User(**data)
+
+        else:
+            user = copy(self.instance)
+
+            for attribute, value in data.items():
+                setattr(user, attribute, value)
+
+        try:
+            validate_password(
+                password,
+                user=user,
+            )
+        except DjangoValidationError as error:
+            raise DRFValidationError({
+                "password": error.messages
+            })
+
+        return data
 
     def create(self, validated_data: dict[str, Any]) -> User:
         """Create a user while storing the password in hashed form."""
