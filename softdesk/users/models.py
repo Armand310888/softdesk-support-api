@@ -4,6 +4,10 @@ from django.db import models
 
 
 class User(AbstractUser):
+
+    class Meta:
+        ordering = ['-created_time', '-pk']
+
     age = models.SmallIntegerField(
         validators=[MinValueValidator(15), MaxValueValidator(120)],
         null=True

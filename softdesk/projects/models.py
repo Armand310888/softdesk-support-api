@@ -6,6 +6,9 @@ from django.conf import settings
 
 class Project(models.Model):
 
+    class Meta:
+        ordering = ['-created_time', '-pk']
+
     class ProjectType(models.TextChoices):
         BACK_END = "BACK_END", "Back-end"
         FRONT_END = "FRONT_END", "Front-end"
@@ -51,6 +54,8 @@ class Contributor(models.Model):
             )
         ]
 
+        ordering = ['-created_time', '-pk']
+
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT
@@ -67,6 +72,9 @@ class Contributor(models.Model):
 
 
 class Issue(models.Model):
+
+    class Meta:
+        ordering = ['-created_time', '-pk']
 
     class IssuePriority(models.TextChoices):
         LOW = 'LOW', 'Low'
@@ -142,6 +150,10 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
+
+    class Meta:
+        ordering = ['-created_time', '-pk']
+
     description = models.TextField(
         'Description',
         max_length=8192
