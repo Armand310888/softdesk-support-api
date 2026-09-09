@@ -6,6 +6,9 @@ from django.conf import settings
 
 class Project(models.Model):
 
+    def __str__(self) -> str:
+        return self.name
+
     class Meta:
         ordering = ['-created_time', '-pk']
 
@@ -72,6 +75,9 @@ class Contributor(models.Model):
 
 
 class Issue(models.Model):
+
+    def __str__(self) -> str:
+        return self.title
 
     class Meta:
         ordering = ['-created_time', '-pk']
@@ -150,6 +156,9 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
+
+    def __str__(self) -> str:
+        return f'Commentaire {self.pk}'
 
     class Meta:
         ordering = ['-created_time', '-pk']

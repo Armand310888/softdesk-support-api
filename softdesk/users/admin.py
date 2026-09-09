@@ -41,5 +41,14 @@ class CustomUserAdmin(UserAdmin):
         "is_anonymized",
     )
 
+    list_display = (
+        "username",
+        "is_anonymized",
+        "is_active",
+        "is_staff",
+    )
+
+    list_filter = UserAdmin.list_filter + ("is_anonymized",)
+
 
 admin.site.register(User, CustomUserAdmin)
